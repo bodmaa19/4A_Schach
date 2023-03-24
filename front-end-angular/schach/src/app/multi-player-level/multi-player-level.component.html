@@ -1,0 +1,9 @@
+<div class="mode">
+  <div class="level">
+    <div class="scrollDiv1">
+      <div class="scrollDiv2">
+        <button routerLink="/" *ngFor="let level of schach.multiPlayerPlayers; let i = index">{{schach.multiPlayerPlayers[i]}}&nbsp;&nbsp;&nbsp;&nbsp;<span style="{{schach.playerStatusStyles[1]}}">{{schach.playerStatus[1]}}</span></button>
+      </div>
+    </div>
+  </div>
+</div>
