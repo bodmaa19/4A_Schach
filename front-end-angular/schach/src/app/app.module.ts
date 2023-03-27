@@ -10,6 +10,7 @@ import { SinglePlayerModeComponent } from './single-player-mode/single-player-mo
 import { MultiplayerModeComponent } from './multi-player-mode/multiplayer-mode.component';
 import { SinglePlayerLevelComponent } from './single-player-level/single-player-level.component';
 import { MultiPlayerLevelComponent } from './multi-player-level/multi-player-level.component';
+import { GameComponent } from './game/game.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { MultiPlayerLevelComponent } from './multi-player-level/multi-player-lev
     SinglePlayerModeComponent,
     MultiplayerModeComponent,
     SinglePlayerLevelComponent,
-    MultiPlayerLevelComponent
+    MultiPlayerLevelComponent,
+    GameComponent
   ],
   imports: [
     BrowserModule,

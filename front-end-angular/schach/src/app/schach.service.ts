@@ -50,6 +50,18 @@ export class SchachService implements OnInit {
     "color : #8d2323"
   ];
 
+  isMultiPlayer : boolean = false;
+
+  singlePlayers : String[] = [
+    "Maxi_123",
+    "Ich"
+  ];
+
+  multiPlayers : String[] = [
+    "Maxi_123",
+    "Ich"
+  ];
+
   constructor() { }
 
   ngOnInit(): void {
