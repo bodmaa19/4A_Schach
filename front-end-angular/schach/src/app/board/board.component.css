@@ -1,0 +1,10 @@
+#canvas
+{
+  display: block;
+  margin: auto;
+
+}
+.piece
+{
+  display: none;
+}

@@ -1,0 +1,60 @@
+.row
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.col-sm-6
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mode
+{
+  height: auto;
+  width: 60%;
+  background: none;
+  border: 5px solid;
+  border-radius: 30px;
+  color: whitesmoke;
+  border-color: whitesmoke;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 10px;
+  font-size: 30px;
+}
+
+.buttons
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+button
+{
+  height: 100%;
+  width: 40%;
+  margin: 2%;
+  background: none;
+  border: 5px solid whitesmoke;
+  border-radius: 15px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: whitesmoke;
+}
+
+form
+{
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

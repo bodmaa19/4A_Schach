@@ -1,0 +1,8 @@
+<div class="row">
+  <div class="col-sm-6">
+    <app-mode-button *ngFor="let mode of schach.modes, let i = index" [index]="i"></app-mode-button>
+  </div>
+  <div class="col-sm-6">
+    <app-board></app-board>
+  </div>
+</div>
