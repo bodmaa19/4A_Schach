@@ -10,9 +10,12 @@ import java.util.List;
 
 @RestController
 public class ChessController {
+    private ChessBoard board = new ChessBoard();
     @RequestMapping(value = "/chess", method = RequestMethod.POST)
     public List<Move> getAllValidMoves(@RequestBody String fenString){
-        ChessBoard board = new ChessBoard(fenString);
+        board.changeTurn();
+        System.out.println(board.isWhiteTurn());
+        board.setBoardWithFenString(fenString);
         return board.getAllValidMoves();
     }
 }
