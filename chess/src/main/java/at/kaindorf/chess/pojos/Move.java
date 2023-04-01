@@ -4,9 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -135,10 +138,6 @@ public class Move {
                 moves.add(new Move(idx, idx + moveArr[0]));
             }
         }
-
-        /*if(board[idx+moveArr[1]].equals(Piece.NO) && p.getNumberOfMoves() == 0){
-            moves.add(new Move(idx, idx+moveArr[1]));
-        }*/
         int pRow = idx / 8;
         for (int i = 2; i < moveArr.length; i++) {
             if (idx + moveArr[i] >= 0 && idx + moveArr[i] < board.length) {
@@ -155,11 +154,28 @@ public class Move {
 
     }
 
+    public static boolean isCheck(Move move, Piece[] board){
+        Optional<Piece> wk = Arrays.stream(board).filter(p -> p.equals(Piece.WK)).findFirst();
+        if(wk.isPresent()){
+            System.out.println(wk.get());
+            if(board[move.getTargetPos()].equals(wk.get())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static List<Move> getValidKingMove(Piece p, int idx, Piece[] board) {
         List<Move> moves = new ArrayList<>();
         moves.addAll(getValidBishopMove(p, idx, board));
 
         moves.addAll(getValidRookMove(p, idx, board));
+        return moves;
+    }
+
+    public static List<Move> getValidMoves(Piece p, int idx, Piece[] board){
+        List<Move> moves = new ArrayList<>();
+
         return moves;
     }
 }
