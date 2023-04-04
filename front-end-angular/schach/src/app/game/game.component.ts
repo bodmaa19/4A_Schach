@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SchachService} from "../schach.service";
+import {BoardComponent} from "../board/board.component";
 
 @Component({
   selector: 'app-game',

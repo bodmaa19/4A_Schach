@@ -2,13 +2,13 @@
   <div class="col-sm-6">
     <div class="mode">
       <form>
-        <label for="fname">Username:</label><br>
-        <input type="text" id="fname" name="fname" value="" placeholder=""><br>
-        <label for="lname">Password:</label><br>
-        <input type="text" id="lname" name="lname" value="" placeholder=""><br><br>
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="fname" value="" placeholder=""><br>
+        <label for="password">Password:</label><br>
+        <input type="text" id="password" name="lname" value="" placeholder=""><br><br>
         <div class="buttons">
-          <button routerLink="/home" (click)="schach.register();">Register</button>
-          <button routerLink="/home" (click)="schach.login();">Login</button>
+          <button (click)="schach.register();">Register</button>
+          <button (click)="schach.login();">Login</button>
         </div>
       </form>
     </div>

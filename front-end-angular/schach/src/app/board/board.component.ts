@@ -1,11 +1,37 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {SchachService} from "../schach.service";
+import {ActivatedRoute} from "@angular/router";
+import {UserComponent} from "../user/user.component";
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.css']
 })
-export class BoardComponent {
+export class BoardComponent implements OnInit {
+  constructor(public schach : SchachService, public route : ActivatedRoute) {
+  }
+
+  ngOnInit(): void {
+    if (this.route.component?.name == "GameComponent")
+    {
+      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
+      this.drawBoard();
+      this.dragPiece();
+      this.updateBoard();
+      this.getFenString();
+      this.setValidMoves();
+    }
+    else
+    {
+      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
+      this.drawBoard();
+      this.updateBoard();
+      this.getFenString();
+      this.setValidMoves();
+    }
+  }
+
   SIZE : number = 500;
   FIELD : number = this.SIZE / 8;
   board : any[] = [];
@@ -16,25 +42,6 @@ export class BoardComponent {
   isDrag : boolean = false;
   dragIndex : number = 0;
   validMoves : any[] = [0];
-
-  /*window.addEventListener("load", () => {
-    setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
-    //setBoard("8/8/8/2k5/4K3/8/8/8")
-    drawBoard();
-    dragPiece();
-    updateBoard();
-    getFenString();
-    setValidMoves();
-  })*/
-
-  start = () => {
-    this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
-    this.drawBoard();
-    this.dragPiece();
-    this.updateBoard();
-    this.getFenString();
-    this.setValidMoves();
-  }
 
   resetBoard = () => {
     for (let i = 0; i < 64; i++) {
@@ -168,7 +175,6 @@ export class BoardComponent {
         let mx = evt.clientX - rect.x;
         let my = evt.clientY - rect.y;
         let idx = this.getFieldIndex(mx, my);
-
         // GET
 
         if (idx != this.dragIndex && this.isValidMove(this.dragIndex, idx)) {
@@ -232,10 +238,10 @@ export class BoardComponent {
       body: this.getFenString()
     };
 
-    /*fetch("http://localhost:8080/chess", init)
+    fetch("http://localhost:8080/chess", init)
       .then(response => response.json())
       .then(result => this.validMoves = result)
-      .catch(error => console.log('error', error));*/
+      .catch(error => console.log('error', error));
   }
 
 

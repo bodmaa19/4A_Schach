@@ -14,8 +14,8 @@
 
 .mode
 {
-  height: auto;
-  width: 60%;
+  height: 40vh;
+  width: 80%;
   background: none;
   border: 5px solid;
   border-radius: 30px;
@@ -40,15 +40,16 @@ button
 {
   height: 100%;
   width: 40%;
-  margin: 2%;
+  margin: 4%;
   background: none;
-  border: 5px solid whitesmoke;
+  border: 2.5px solid whitesmoke;
   border-radius: 15px;
   display: block;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   color: whitesmoke;
+  font-weight: lighter;
 }
 
 form
@@ -57,4 +58,5 @@ form
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  font-weight: lighter;
 }
