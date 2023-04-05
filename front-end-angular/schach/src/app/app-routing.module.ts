@@ -5,6 +5,7 @@ import {SinglePlayerModeComponent} from "./single-player-mode/single-player-mode
 import {MultiplayerModeComponent} from "./multi-player-mode/multiplayer-mode.component";
 import {GameComponent} from "./game/game.component";
 import {UserComponent} from "./user/user.component";
+import {SchachService} from "./schach.service";
 
 const routes: Routes = [
   {
@@ -13,19 +14,23 @@ const routes: Routes = [
   },
   {
     path : 'home',
-    component : HomeComponent
+    component : HomeComponent,
+    canActivate: [SchachService]
   },
   {
     path : 'singlePlayerMode',
-    component : SinglePlayerModeComponent
+    component : SinglePlayerModeComponent,
+    canActivate: [SchachService]
   },
   {
     path : 'multiPlayerMode',
-    component : MultiplayerModeComponent
+    component : MultiplayerModeComponent,
+    canActivate: [SchachService]
   },
   {
     path : 'game',
-    component : GameComponent
+    component : GameComponent,
+    canActivate: [SchachService]
   }
 ];
 

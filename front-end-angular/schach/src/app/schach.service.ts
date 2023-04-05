@@ -1,10 +1,11 @@
 import {Injectable, OnInit} from '@angular/core';
-import {Router} from "@angular/router";
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from "@angular/router";
+import {Observable} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
-export class SchachService implements OnInit {
+export class SchachService implements OnInit, CanActivate {
   links : String[] = [
     "game",
     "multiPlayerMode"
@@ -36,7 +37,7 @@ export class SchachService implements OnInit {
     "Schwer"
   ];
 
-  token : String = "";
+  token : string = "";
   player : any = {
     username: "test"
   };
@@ -152,5 +153,25 @@ export class SchachService implements OnInit {
   constructor(public router : Router) { }
 
   ngOnInit(): void {
+  }
+
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
+    let init = {
+      method: 'GET',
+      headers: {
+        "Authorization": this.token
+      }
+    };
+    let url : URL = new URL('http://localhost:8080/schach-1.0-SNAPSHOT/api/user/validToken');
+    fetch(url, init).then(response =>
+    {
+      if (!response.ok)
+      {
+        throw new Error("failed to access resources because of invalid token with http status " + response.statusText);
+      }
+      return true;
+    }).catch(error => alert(error.toString()));
+    this.router.navigate(['/']);
+    return false;
   }
 }
