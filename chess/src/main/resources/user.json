@@ -1,0 +1,21 @@
+[ {
+  "username" : "admin",
+  "password" : "admin",
+  "bestScore" : 0
+}, {
+  "username" : "test",
+  "password" : "test",
+  "bestScore" : 0
+}, {
+  "username" : "manuel",
+  "password" : "1234",
+  "bestScore" : 0
+}, {
+  "username" : "roman",
+  "password" : "1442",
+  "bestScore" : 0
+}, {
+  "username" : "spring",
+  "password" : "boot",
+  "bestScore" : 10
+} ]

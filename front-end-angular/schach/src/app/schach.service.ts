@@ -68,7 +68,7 @@ export class SchachService implements OnInit, CanActivate {
       method: 'POST',
       body: JSON.stringify(user)
     };
-    let url : URL = new URL('http://localhost:8080/schach-1.0-SNAPSHOT/api/user/register');
+    let url : URL = new URL('http://localhost:8080/userController/register');
     fetch(url, init).then(response =>
     {
       if (!response.ok)
@@ -93,7 +93,7 @@ export class SchachService implements OnInit, CanActivate {
       method: 'POST',
       body: JSON.stringify(user)
     };
-    let url : URL = new URL('http://localhost:8080/schach-1.0-SNAPSHOT/api/user/login');
+    let url : URL = new URL('http://localhost:8080/userController/login');
     fetch(url, init).then(response =>
     {
       if (!response.ok)
@@ -132,7 +132,7 @@ export class SchachService implements OnInit, CanActivate {
     let init = {
       method: 'GET'
     };
-    let url : URL = new URL('http://localhost:8080/schach-1.0-SNAPSHOT/api/user/users');
+    let url : URL = new URL('http://localhost:8080/userController/users');
     fetch(url, init).then(response =>
     {
       if (!response.ok)
@@ -162,7 +162,7 @@ export class SchachService implements OnInit, CanActivate {
         "Authorization": this.token
       }
     };
-    let url : URL = new URL('http://localhost:8080/schach-1.0-SNAPSHOT/api/user/validToken');
+    let url : URL = new URL('http://localhost:8080/userController/validToken');
     fetch(url, init).then(response =>
     {
       if (!response.ok)
