@@ -14,7 +14,7 @@ public class IO_Access
 {
     public static List<User> readUserFromJson() throws IOException
     {
-        Path path = Path.of("D:\\POS4\\PROJECT\\HELP\\schach_sb\\src\\main\\resources\\user.json");
+        Path path = Path.of(System.getProperty("user.dir"), "src", "main", "resources", "user.json");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper.readValue(path.toFile(), new TypeReference<List<User>>(){});
@@ -22,7 +22,7 @@ public class IO_Access
 
     public static void writeUserToJson(List<User> userList) throws IOException, URISyntaxException
     {
-        Path path = Path.of("D:\\POS4\\PROJECT\\HELP\\schach_sb\\src\\main\\resources\\user.json");
+        Path path = Path.of(System.getProperty("user.dir"), "src", "main", "resources", "user.json");
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), userList);

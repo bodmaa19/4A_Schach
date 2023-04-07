@@ -18,4 +18,8 @@
   "username" : "spring",
   "password" : "boot",
   "bestScore" : 10
+}, {
+  "username" : "maurer_maxi",
+  "password" : "1234",
+  "bestScore" : 0
 } ]
