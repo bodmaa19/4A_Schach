@@ -1,6 +1,5 @@
 import {Injectable, OnInit} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree} from "@angular/router";
-import {Observable} from "rxjs";
+import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router";
 
 @Injectable({
   providedIn: 'root'
@@ -38,21 +37,9 @@ export class SchachService implements OnInit, CanActivate {
   ];
 
   token : string = "";
-  player : any = {
-    username: "test"
-  };
+  player : any;
   opponentPlayer : any;
-  multiPlayerPlayers : any[] = [
-    {
-      username: "Mani_123"
-    },
-    {
-      username: "Maxi_123"
-    },
-    {
-      username: "Roman_123"
-    }
-  ];
+  multiPlayerPlayers : any[] = [];
 
   register = () : void =>
   {
@@ -66,6 +53,9 @@ export class SchachService implements OnInit, CanActivate {
     };
     let init = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(user)
     };
     let url : URL = new URL('http://localhost:8080/userController/register');
@@ -81,7 +71,7 @@ export class SchachService implements OnInit, CanActivate {
 
   login = () : void =>
   {
-// @ts-ignore
+    // @ts-ignore
     let username : String = document.getElementById("username").value;
     // @ts-ignore
     let password : String = document.getElementById("password").value;
@@ -91,6 +81,9 @@ export class SchachService implements OnInit, CanActivate {
     };
     let init = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(user)
     };
     let url : URL = new URL('http://localhost:8080/userController/login');
@@ -101,11 +94,12 @@ export class SchachService implements OnInit, CanActivate {
         throw new Error("failed to login with http status " + response.statusText);
       }
       // @ts-ignore
-      this.player = response.json();
-      // @ts-ignore
       this.token = response.headers.get("Authorization");
-      console.log(this.player)
-      console.log(this.token)
+      return response.json();
+    }).then(json =>
+    {
+      // @ts-ignore
+      this.player = json;
       this.router.navigate(['/home']);
     }).catch(error => alert(error.toString()));
   }
@@ -139,9 +133,11 @@ export class SchachService implements OnInit, CanActivate {
       {
         throw new Error("failed to load multiplayer players with http status " + response.statusText);
       }
+      return response.json();
+    }).then(json =>
+    {
       // @ts-ignore
-      this.multiPlayerPlayers = response.json();
-      console.log(this.multiPlayerPlayers)
+      this.multiPlayerPlayers = json;
     }).catch(error => alert(error.toString()));
   }
 
@@ -169,9 +165,11 @@ export class SchachService implements OnInit, CanActivate {
       {
         throw new Error("failed to access resources because of invalid token with http status " + response.statusText);
       }
-      return true;
-    }).catch(error => alert(error.toString()));
-    this.router.navigate(['/']);
-    return false;
+    }).catch(error =>
+    {
+      alert(error.toString());
+      this.router.navigate(['/']);
+    });
+    return true;
   }
 }

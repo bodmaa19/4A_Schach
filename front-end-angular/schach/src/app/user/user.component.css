@@ -52,7 +52,7 @@ button
   font-weight: lighter;
 }
 
-form
+.form
 {
   display: block;
   overflow: hidden;

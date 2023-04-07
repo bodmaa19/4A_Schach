@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SchachService} from "../schach.service";
 import {ActivatedRoute} from "@angular/router";
-import {UserComponent} from "../user/user.component";
 
 @Component({
   selector: 'app-board',
@@ -9,11 +8,13 @@ import {UserComponent} from "../user/user.component";
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit {
+  initializationDone : boolean = false;
+
   constructor(public schach : SchachService, public route : ActivatedRoute) {
   }
 
   ngOnInit(): void {
-    if (this.route.component?.name == "GameComponent")
+    if (this.route.component?.name == "GameComponent" && this.initializationDone == false)
     {
       this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR");
       this.drawBoard();
@@ -21,6 +22,7 @@ export class BoardComponent implements OnInit {
       this.updateBoard();
       this.getFenString();
       this.setValidMoves();
+      this.initializationDone = true;
     }
     else
     {
@@ -29,6 +31,7 @@ export class BoardComponent implements OnInit {
       this.updateBoard();
       this.getFenString();
       this.setValidMoves();
+      this.initializationDone = false;
     }
   }
 

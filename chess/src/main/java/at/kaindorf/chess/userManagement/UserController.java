@@ -66,7 +66,6 @@ public class UserController
     @RequestMapping(method = RequestMethod.POST, path = "/userController/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity login(@RequestBody User user)
     {
-        System.out.printf(user.toString());
         Optional<User> userOptional = userMockDatabase.login(user);
         try
         {

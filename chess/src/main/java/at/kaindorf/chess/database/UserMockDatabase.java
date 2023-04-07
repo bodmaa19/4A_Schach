@@ -59,7 +59,6 @@ public class UserMockDatabase
 
     public Optional<User> login(User user)
     {
-        System.out.printf(userList.toString());
         return userList.stream().filter(u -> u.getUsername().equals(user.getUsername()) && u.getPassword().equals(user.getPassword())).findFirst();
     }
 
