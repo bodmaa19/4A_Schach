@@ -9,14 +9,19 @@ let isDrag = false;
 let dragIndex;
 let validMoves;
 
+let timeout;
+let lastStart = -1;
+let lastTarget = -1;
+
 window.addEventListener("load", () => {
     setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    //setBoard("8/8/8/2k5/4K3/8/8/8")
+    //setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
+    //setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
     drawBoard();
     dragPiece();
     updateBoard();
     getFenString();
-    setValidMoves();
+    setValidMoves(-1, -1);
 })
 
 const resetBoard = () => {
@@ -25,11 +30,11 @@ const resetBoard = () => {
     }
 }
 
-const setBoard = (fenString) => {
-    resetBoard();
+const setBoard = async (fenString) => {
+    await resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
-
+    clearTimeout(timeout);
     for (let i = 0; i < tokens.length; i++) {
         let char = tokens[i]
         let num = parseInt(char);
@@ -46,6 +51,7 @@ const setBoard = (fenString) => {
             idx += num;
         }
     }
+    updateBoard();
 }
 
 const drawBoard = () => {
@@ -81,11 +87,17 @@ const updateBoard = () => {
     for (let i = 0; i < 64; i++) {
         let x = i % 8 * FIELD;
         let y = Math.floor(i / 8) * FIELD;
-
+        if (i != dragIndex) {
+            boardX[i] = x;
+            boardY[i] = y;
+        }
         if (i % 2 + Math.floor(i / 8) % 2 == 1) {
             ctx.fillStyle = "#b58863";
         } else {
             ctx.fillStyle = "#f0d9b5";
+        }
+        if(lastStart != -1 && lastTarget != -1 && lastTarget == i || lastStart == i){
+            ctx.fillStyle = "#cdd26a";
         }
 
         /*if (i % 2 + Math.floor(i / 8) % 2 == 1) {
@@ -105,13 +117,17 @@ const updateBoard = () => {
         ctx.drawImage(board[dragIndex], boardX[dragIndex], boardY[dragIndex], 60, 60)
     }
 
-    setTimeout(updateBoard, 1000 / 60)
+    timeout = setTimeout(updateBoard, 1000 / 60)
 }
 
-const isValidMove = (dragIndex, idx: number) => {
+const isValidMove = (dragIndex: number, idx: number) => {
+    for (let m in validMoves) {
+        if (validMoves[m].startPos == dragIndex && validMoves[m].targetPos == idx) {
+            return true;
+        }
+    }
 
-
-    return true;
+    return false;
 }
 
 const dragPiece = () => {
@@ -152,12 +168,14 @@ const dragPiece = () => {
             // GET
 
             if (idx != dragIndex && isValidMove(dragIndex, idx)) {
+                lastTarget = idx;
+                lastStart = dragIndex;
                 board[idx] = board[dragIndex];
                 board[dragIndex] = '';
-                setValidMoves();
+                setValidMoves(dragIndex, idx);
             }
-            boardX[idx] = idx % 8 * FIELD;
-            boardY[idx] = Math.floor(idx / 8) * FIELD;
+            boardX[dragIndex] = dragIndex % 8 * FIELD;
+            boardY[dragIndex] = Math.floor(dragIndex / 8) * FIELD;
         }
     }
 
@@ -187,50 +205,85 @@ const getFenString = () => {
             fen += (num == 0) ? id : num + id;
             num = 0;
         } else {
-            if(num == 8){
+            if (num == 8) {
                 fen += num;
                 num = 0;
-            }else{
+            } else {
                 num++;
             }
         }
-        if((i+1)%8==0 && i < board.length-1){
+        if ((i + 1) % 8 == 0 && i < board.length - 1) {
             fen += (num != 0) ? num + "/" : "/";
             num = 0;
         }
     }
-    if(num != 0){
+    if (num != 0) {
         fen += num;
     }
     console.log(fen);
     return fen;
 }
+//change
+const setValidMoves = (start, target) => {
+    let init: object;
+    let url: string;
+    if (start == -1 && target == -1) {
+        url = 'http://localhost:8080/chess/start';
+        init = {
+            method: 'POST',
+            body: getFenString()
+        };
+        fetch(url, init)
+            .then(response => response.json())
+            .then(result => validMoves = result)
+            .catch(error => console.log('error', error));
+    } else {
+        url = 'http://localhost:8080/chess/move';
+        let move: object = {
+            startPos: start,
+            targetPos: target
+        };
+        console.log(JSON.stringify(move))
+        init = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(move)
+        };
+        fetch(url, init)
+            .then(response => response.json())
+            .then(json => {
+                console.log(json["fenString"])
+                validMoves = json["moves"];
+                lastStart = json["aiMove"].startPos;
+                lastTarget = json["aiMove"].targetPos;
+                setBoard(json["fenString"]);
+            })
+            .catch(error => console.log('error', error));
+    }
 
-const setValidMoves = () => {
-    let init = {
-        method: 'POST',
-        body: getFenString()
-    };
 
-    fetch("http://localhost:8080/chess", init)
-        .then(response => response.json())
-        .then(result => validMoves = result)
-        .catch(error => console.log('error', error));
 }
 
 
 const drawValidFields = () => {
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
-    let r = 15/2;
+    let r = 15 / 2;
     let ctx = canvas.getContext("2d");
     for (let m in validMoves) {
         //console.log(validMoves[m].startPos + " " + dragIndex)
-        if(validMoves[m].startPos == dragIndex){
+        if (validMoves[m].startPos == dragIndex) {
             ctx.beginPath();
             let idx = validMoves[m].targetPos;
-            let x = idx % 8 * FIELD+(FIELD/2);
-            let y = Math.floor(idx / 8) * FIELD+(FIELD/2);
-            ctx.fillStyle = "#6e6e42";
+            let x = idx % 8 * FIELD + (FIELD / 2);
+            let y = Math.floor(idx / 8) * FIELD + (FIELD / 2);
+            if(board[idx] == ''){
+                ctx.fillStyle = "#6e6e42";
+            }else {
+                ctx.fillStyle = "#FF0000";
+            }
+
             ctx.arc(x, y, r, 0, 2 * Math.PI)
             ctx.fill();
             //ctx.stroke()
