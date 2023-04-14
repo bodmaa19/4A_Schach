@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-sm-3 player_1">
     <div class="player">
-      <p>{{schach.player["username"]}}</p>
+      <p>{{schach.opponentPlayer["username"]}}</p>
     </div>
     <div class="clock">
       <button class="player_1">🕒 10:00</button>
@@ -25,7 +25,8 @@
     </div>
   </div>
   <div class="col-sm-6">
-    <app-board></app-board>
+    <app-board *ngIf="schach.isMultiPlayer == false"></app-board>
+    <app-multi-player-board *ngIf="schach.isMultiPlayer == true"></app-multi-player-board>
   </div>
   <div class="col-sm-3 player_2">
     <div class="deadPieces">
@@ -49,7 +50,7 @@
       <button class="player_2">🕒 10:00</button>
     </div>
     <div class="player">
-      <p>{{schach.opponentPlayer["username"]}}</p>
+      <p>{{schach.player["username"]}}</p>
     </div>
   </div>
 </div>

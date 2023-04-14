@@ -13,6 +13,7 @@ import { MultiPlayerLevelComponent } from './multi-player-level/multi-player-lev
 import { GameComponent } from './game/game.component';
 import { BoardComponent } from './board/board.component';
 import { UserComponent } from './user/user.component';
+import { MultiPlayerBoardComponent } from './multi-player-board/multi-player-board.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { UserComponent } from './user/user.component';
     MultiPlayerLevelComponent,
     GameComponent,
     BoardComponent,
-    UserComponent
+    UserComponent,
+    MultiPlayerBoardComponent
   ],
   imports: [
     BrowserModule,

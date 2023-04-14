@@ -40,6 +40,7 @@ export class SchachService implements OnInit, CanActivate {
   player : any;
   opponentPlayer : any;
   multiPlayerPlayers : any[] = [];
+  isMultiPlayer : boolean = false;
 
   register = () : void =>
   {
@@ -114,10 +115,12 @@ export class SchachService implements OnInit, CanActivate {
           best_score: 10000
         }
       );
+      this.isMultiPlayer = false;
     }
     else
     {
       this.loadMultiPlayers();
+      this.isMultiPlayer = true;
     }
   }
 
