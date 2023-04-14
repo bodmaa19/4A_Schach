@@ -17,6 +17,7 @@ public class ChessBoard {
         setBoardWithFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
         //setBoardWithFenString("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R");
         //setBoardWithFenString("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R");
+        //setBoardWithFenString("r2k3r/8/8/8/8/8/8/4K3");
         whiteTurn = true;
     }
 

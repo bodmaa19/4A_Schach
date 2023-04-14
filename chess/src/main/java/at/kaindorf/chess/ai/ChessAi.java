@@ -67,7 +67,7 @@ public class ChessAi {
         int maxValue = alpha;
         List<Move> moves = board.getAllValidMoves(true);
         if(moves.size() == 0){
-            return 0;
+            return (board.isWhiteTurn()) ? -8000 : 8000;
         }
         moves = orderMoves(moves, board);
         if (depth==wishedDepth) {

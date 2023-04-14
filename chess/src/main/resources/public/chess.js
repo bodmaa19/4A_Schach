@@ -15,6 +15,7 @@ window.addEventListener("load", () => {
     setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     //setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
     //setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
+    //setBoard("r2k3r/8/8/8/8/8/8/4K3")
     drawBoard();
     dragPiece();
     updateBoard();
@@ -211,6 +212,7 @@ const getFenString = () => {
 };
 //change
 const setValidMoves = (start, target) => {
+    validMoves = 0;
     let init;
     let url;
     if (start == -1 && target == -1) {
