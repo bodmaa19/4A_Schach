@@ -11,29 +11,30 @@ export class BoardComponent implements OnInit {
   constructor(public schach: SchachService, public route: ActivatedRoute) {
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     if (this.route.component?.name == "GameComponent") {
-      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      console.log("game");
+      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
       // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      this.drawBoard();
+      // this.drawBoard();
+      await this.setValidMoves(-1, -1);
       this.dragPiece();
+      console.log(this.board);
       this.updateBoard();
-      this.getFenString();
-      this.setValidMoves(-1, -1);
-    }
-    else
-    {
-      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      //this.getFenString();
+      //this.setValidMoves(-1, -1);
+    } else {
+      console.log("not game");
+      console.log(this.board);
+      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
       // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      this.drawBoard();
-      // dragPiece();
-      this.updateBoard();
+      //this.dragPiece();
       this.getFenString();
-      this.setValidMoves(-1, -1);
+      this.drawBoard();
     }
   }
 
@@ -58,7 +59,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  setBoard = async (fenString : string) => {
+  setBoard = async (fenString : string) : Promise<void> => {
     await this.resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
@@ -108,6 +109,7 @@ export class BoardComponent implements OnInit {
   }
 
   updateBoard = () => {
+    console.log(1442)
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -146,8 +148,7 @@ export class BoardComponent implements OnInit {
       this.drawValidFields();
       ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
     }
-
-    this.timeout = setTimeout(this.updateBoard, 1000 / 60)
+    this.timeout = setTimeout(this.updateBoard, 1000/60)
   }
 
   isValidMove = (dragIndex: number, idx: number) => {
@@ -275,7 +276,6 @@ export class BoardComponent implements OnInit {
         startPos: start,
         targetPos: target
       };
-      console.log(JSON.stringify(move))
       init = {
         method: 'POST',
         headers: {
@@ -286,7 +286,6 @@ export class BoardComponent implements OnInit {
       fetch(url, init)
         .then(response => response.json())
         .then(json => {
-          console.log(json["fenString"])
           this.validMoves = json["moves"];
           this.lastStart = json["aiMove"].startPos;
           this.lastTarget = json["aiMove"].targetPos;
@@ -295,7 +294,6 @@ export class BoardComponent implements OnInit {
         .catch(error => console.log('error', error));
     }
   }
-
 
   drawValidFields = () => {
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
