@@ -9,10 +9,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +29,7 @@ public class UserController
 
     private UserMockDatabase userMockDatabase = UserMockDatabase.getInstance();
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(method = RequestMethod.GET, path = "/userController/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getAllUsers()
     {
@@ -51,7 +49,7 @@ public class UserController
         jwsObject.sign(new MACSigner(JWT.getBytes()));
         return jwsObject.serialize();
     }
-
+    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(method = RequestMethod.POST, path = "/userController/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity register(@RequestBody User user)
     {
@@ -63,6 +61,7 @@ public class UserController
         return ResponseEntity.accepted().build();
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(method = RequestMethod.POST, path = "/userController/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity login(@RequestBody User user)
     {
@@ -83,6 +82,7 @@ public class UserController
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @JWTNeeded
     @RequestMapping(method = RequestMethod.GET, path = "/userController/validToken")
     public ResponseEntity validToken()
@@ -90,6 +90,7 @@ public class UserController
         return ResponseEntity.ok().build();
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @JWTNeeded
     @RequestMapping(method = RequestMethod.PATCH, path = "/userController/bestScore", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateBestScore(@RequestBody UserData userData)

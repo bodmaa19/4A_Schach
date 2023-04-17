@@ -49,6 +49,11 @@
 			<artifactId>jakarta.jakartaee-api</artifactId>
 			<version>9.1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
