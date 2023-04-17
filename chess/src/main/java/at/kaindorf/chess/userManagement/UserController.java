@@ -119,4 +119,6 @@ public class UserController
     {
         // Token ist ungültig
     }
+
+    @RequestHeader(value = "Authorization") String token
 */
