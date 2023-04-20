@@ -21,17 +21,17 @@ public class JWTNeededFilter implements ContainerRequestFilter
     @Override
     public void filter(ContainerRequestContext crc) throws IOException
     {
-        String token = crc.getHeaderString(HttpHeaders.AUTHORIZATION);
-        try
-        {
-            JWSObject jwsObject = JWSObject.parse(token);
-            if (!jwsObject.verify(new MACVerifier(UserController.JWT.getBytes())))
-            {
-                throw new Exception("not verified");
-            }
-        } catch (Exception e)
-        {
-            crc.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-        }
+//        String token = crc.getHeaderString(HttpHeaders.AUTHORIZATION);
+//        try
+//        {
+//            JWSObject jwsObject = JWSObject.parse(token);
+//            if (!jwsObject.verify(new MACVerifier(UserController.JWT.getBytes())))
+//            {
+//                throw new Exception("not verified");
+//            }
+//        } catch (Exception e)
+//        {
+//            crc.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+//        }
     }
 }

@@ -8,7 +8,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 
 public class JWTUtil
 {
-    private static final String JWT_SECRET = "This-is-my-secret-to-encrypt-all-the-data-!";
+    private static final String JWT_SECRET = "This-is-my-secret-to-encrypt-all-the-data-from-the-user-to-secure-our-system-!";
 
     public static String generateToken(String username)
     {
