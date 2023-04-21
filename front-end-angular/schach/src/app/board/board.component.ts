@@ -14,27 +14,29 @@ export class BoardComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     if (this.route.component?.name == "GameComponent") {
       console.log("game");
+      console.log(this.board)
       await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
       // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      // this.drawBoard();
+      this.drawBoard();
       await this.setValidMoves(-1, -1);
       this.dragPiece();
       console.log(this.board);
-      this.updateBoard();
+      //this.updateBoard();
       //this.getFenString();
       //this.setValidMoves(-1, -1);
     } else {
-      console.log("not game");
-      console.log(this.board);
+      console.log("game");
+      console.log(this.board)
       await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
       // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      //this.dragPiece();
-      this.getFenString();
       this.drawBoard();
+      await this.setValidMoves(-1, -1);
+      this.dragPiece();
+      console.log(this.board);
     }
   }
 
@@ -80,10 +82,11 @@ export class BoardComponent implements OnInit {
         idx += num;
       }
     }
-    this.updateBoard();
+    await this.updateBoard();
   }
 
   drawBoard = () => {
+    console.log("draw")
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -109,7 +112,6 @@ export class BoardComponent implements OnInit {
   }
 
   updateBoard = () => {
-    console.log(1442)
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -123,28 +125,28 @@ export class BoardComponent implements OnInit {
         this.boardX[i] = x;
         this.boardY[i] = y;
       }
-      if (i % 2 + Math.floor(i / 8) % 2 == 1) {
+      /*if (i % 2 + Math.floor(i / 8) % 2 == 1) {
         ctx.fillStyle = "#b58863";
       } else {
         ctx.fillStyle = "#f0d9b5";
+      }*/
+
+      if (i % 2 + Math.floor(i / 8) % 2 == 1) {
+          ctx.fillStyle = "#825324";
+      } else {
+          ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
         ctx.fillStyle = "#cdd26a";
       }
-
-      /*if (i % 2 + Math.floor(i / 8) % 2 == 1) {
-          ctx.fillStyle = "#825324";
-      } else {
-          ctx.fillStyle = "#e3c6aa";
-      }*/
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
     for (let i = 0; i < 64; i++) {
-      if (this.board[i] != '') {
+      if(this.board[i] != ''){
         ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
       }
     }
-    if (this.isDrag) {
+    if(this.isDrag){
       this.drawValidFields();
       ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
     }
@@ -166,6 +168,7 @@ export class BoardComponent implements OnInit {
     let ctx = canvas.getContext("2d");
 
     canvas.onmousedown = (evt) => {
+      console.log("mouse Down")
       let rect = canvas.getBoundingClientRect();
       for (let i = 0; i < 64; i++) {
         let x = i % 8 * this.FIELD;
@@ -308,9 +311,10 @@ export class BoardComponent implements OnInit {
         let x = idx % 8 * this.FIELD + (this.FIELD / 2);
         let y = Math.floor(idx / 8) * this.FIELD + (this.FIELD / 2);
         if (this.board[idx] == '') {
-          ctx.fillStyle = "#6e6e42";
+          //ctx.fillStyle = "#6e6e42";
+          ctx.fillStyle = "#00AA00";
         } else {
-          ctx.fillStyle = "#FF0000";
+          ctx.fillStyle = "#AA0000";
         }
 
         ctx.arc(x, y, r, 0, 2 * Math.PI)

@@ -6,8 +6,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-public class JWTUtil {
-    private static final String JWT_SECRET = "This-is-my-secret-to-encrypt-all-the-data-!";
+public class JWTUtil
+{
+    private static final String JWT_SECRET = "This-is-my-secret-to-encrypt-all-the-data-from-the-user-to-secure-our-system-!";
 
     public static String generateToken(String username) {
         Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);

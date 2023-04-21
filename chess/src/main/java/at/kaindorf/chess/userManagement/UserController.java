@@ -2,10 +2,9 @@ package at.kaindorf.chess.userManagement;
 
 import at.kaindorf.chess.database.UserMockDatabase;
 import at.kaindorf.chess.jwt.JWTNeeded;
+import at.kaindorf.chess.jwt.JWTUtil;
 import at.kaindorf.chess.pojos.User;
 import at.kaindorf.chess.pojos.UserData;
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.MACSigner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +16,6 @@ import java.util.Optional;
 @RestController()
 public class UserController
 {
-    /*
-     @RequestMapping(path = "/")
-     // public String getGreeting()
-     public ResponseEntity getGreeting()
-     {
-         // return "Das ist ein Test !!!";
-         return ResponseEntity.ok("Das ist ein Test !!!");
-     }
-    */
-
     private UserMockDatabase userMockDatabase = UserMockDatabase.getInstance();
 
     @CrossOrigin(origins = "http://localhost:4200")
@@ -43,12 +32,6 @@ public class UserController
 
     public static final String JWT = "This-is-my-not-very-long-String-to-secure-all-the-user-data-!!!!!!!!!-123456789-000000000";
 
-    public String createJWTToken(String payload) throws JOSEException
-    {
-        JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(payload));
-        jwsObject.sign(new MACSigner(JWT.getBytes()));
-        return jwsObject.serialize();
-    }
     @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(method = RequestMethod.POST, path = "/userController/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity register(@RequestBody User user)
@@ -73,7 +56,7 @@ public class UserController
                 throw new Exception("not verified");
             }
             UserData userData = new UserData(userOptional.get().getUsername(), userOptional.get().getBestScore());
-            String token = createJWTToken(userData.getUsername());
+            String token = JWTUtil.generateToken(userData.getUsername());
             return ResponseEntity.ok().header("Authorization", token).body(userData);
         }
         catch (Exception e)
@@ -104,3 +87,30 @@ public class UserController
         return ResponseEntity.ok(userData);
     }
 }
+
+/*
+     @RequestMapping(path = "/")
+     // public String getGreeting()
+     public ResponseEntity getGreeting()
+     {
+         // return "Das ist ein Test !!!";
+         return ResponseEntity.ok("Das ist ein Test !!!");
+     }
+*/
+
+/*
+    // Erstellen eines Tokens
+    String token = JwtUtil.generateToken("username");
+
+    // Überprüfen des Tokens
+    if (JwtUtil.verifyToken(token))
+    {
+        // Token ist gültig
+    }
+    else
+    {
+        // Token ist ungültig
+    }
+
+    @RequestHeader(value = "Authorization") String token
+*/
