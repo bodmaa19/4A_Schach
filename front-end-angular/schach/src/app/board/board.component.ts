@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SchachService} from "../schach.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-board',
@@ -8,7 +8,12 @@ import {ActivatedRoute} from "@angular/router";
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit {
-  constructor(public schach: SchachService, public route: ActivatedRoute) {
+  constructor(public schach: SchachService, public route: ActivatedRoute, public router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   async ngOnInit(): Promise<void> {
@@ -345,6 +350,6 @@ export class BoardComponent implements OnInit {
   }
 
   drawDeadPieces = () => {
-    
+
   }
 }

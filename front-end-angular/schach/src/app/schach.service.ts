@@ -169,7 +169,7 @@ export class SchachService implements OnInit, CanActivate {
       }
     }).catch(error =>
     {
-      alert(error.toString());
+      // alert(error.toString());
       this.router.navigate(['/']);
     });
     return true;
