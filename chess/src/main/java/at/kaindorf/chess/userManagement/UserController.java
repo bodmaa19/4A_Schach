@@ -64,25 +64,33 @@ public class UserController
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
-    @JWTNeeded
+    // @JWTNeeded
     @RequestMapping(method = RequestMethod.GET, path = "/userController/validToken")
-    public ResponseEntity validToken()
+    public ResponseEntity validToken(@RequestHeader(value = "Authorization") String token)
     {
-        return ResponseEntity.ok().build();
+        if (JWTUtil.verifyToken(token))
+        {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @CrossOrigin(origins = "http://localhost:4200")
-    @JWTNeeded
+    // @JWTNeeded
     @RequestMapping(method = RequestMethod.PATCH, path = "/userController/bestScore", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateBestScore(@RequestBody UserData userData)
+    public ResponseEntity updateBestScore(@RequestHeader(value = "Authorization") String token, @RequestBody UserData userData)
     {
-        User user = new User(userData.getUsername(), null, userData.getBestScore());
-        Optional<User> userOptional = userMockDatabase.updateBestScore(user);
-        if (userOptional.isEmpty())
+        if (JWTUtil.verifyToken(token))
         {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            User user = new User(userData.getUsername(), null, userData.getBestScore());
+            Optional<User> userOptional = userMockDatabase.updateBestScore(user);
+            if (userOptional.isEmpty())
+            {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            return ResponseEntity.ok(userData);
         }
-        return ResponseEntity.ok(userData);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
 
