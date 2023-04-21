@@ -60,3 +60,8 @@ button
   text-overflow: ellipsis;
   font-weight: lighter;
 }
+
+img {
+  height: 60vh;
+  width: auto;
+}

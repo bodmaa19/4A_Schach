@@ -94,11 +94,10 @@ export class SchachService implements OnInit, CanActivate {
       {
         throw new Error("failed to login with http status " + response.statusText);
       }
-      // @ts-ignore
-      this.token = response.headers.get("Authorization");
       return response.json();
     }).then(json =>
     {
+      this.token = json["token"];
       // @ts-ignore
       this.player = json;
       this.router.navigate(['/home']);

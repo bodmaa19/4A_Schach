@@ -55,8 +55,8 @@ public class UserController
             {
                 throw new Exception("not verified");
             }
-            UserData userData = new UserData(userOptional.get().getUsername(), userOptional.get().getBestScore());
-            String token = JWTUtil.generateToken(userData.getUsername());
+            String token = JWTUtil.generateToken(userOptional.get().getUsername());
+            UserData userData = new UserData(userOptional.get().getUsername(), userOptional.get().getBestScore(), token);
             return ResponseEntity.ok().header("Authorization", token).body(userData);
         }
         catch (Exception e)

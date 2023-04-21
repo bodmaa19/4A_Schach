@@ -15,4 +15,5 @@ public class UserData
     private String username;
     @JsonAlias(value = "best_score")
     private Integer bestScore;
+    private String token;
 }
