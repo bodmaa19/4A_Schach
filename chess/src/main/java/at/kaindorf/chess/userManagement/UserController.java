@@ -30,6 +30,8 @@ public class UserController
         return ResponseEntity.ok(userList);
     }
 
+    public static final String JWT = "This-is-my-not-very-long-String-to-secure-all-the-user-data-!!!!!!!!!-123456789-000000000";
+
     @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(method = RequestMethod.POST, path = "/userController/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity register(@RequestBody User user)

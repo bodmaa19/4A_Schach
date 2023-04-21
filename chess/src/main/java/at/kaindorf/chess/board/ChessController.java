@@ -4,10 +4,7 @@ import at.kaindorf.chess.ai.ChessAi;
 import at.kaindorf.chess.pojos.Castling;
 import at.kaindorf.chess.pojos.ChessReturn;
 import at.kaindorf.chess.pojos.Move;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +12,8 @@ import java.util.List;
 @RestController
 public class ChessController {
     private ChessBoard board;
+
+    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(value = "/chess/start", method = RequestMethod.POST)
     public List<Move> getAllValidMoves(@RequestBody String fenString){
         board = new ChessBoard();
@@ -25,6 +24,7 @@ public class ChessController {
         return board.getAllValidMoves(true);
     }
 
+    @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(value = "/chess/move", method = RequestMethod.POST)
     public ChessReturn getAllValidMoves(@RequestBody Move newMove){
         //System.out.println(board.isWhiteTurn());
