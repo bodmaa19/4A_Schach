@@ -50,6 +50,8 @@ export class BoardComponent implements OnInit {
   isDrag: boolean = false;
   dragIndex: number = 0;
   validMoves: any = [0];
+  color: boolean = true;
+  singleMode: boolean = false;
 
   timeout: number = 0;
   lastStart: number = -1;
@@ -118,6 +120,7 @@ export class BoardComponent implements OnInit {
     let image = <HTMLImageElement>document.getElementById("k");
     canvas.width = 500;
     canvas.height = 500;
+
     for (let i = 0; i < 64; i++) {
       let x = i % 8 * this.FIELD;
       let y = Math.floor(i / 8) * this.FIELD;
@@ -141,14 +144,30 @@ export class BoardComponent implements OnInit {
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
-    for (let i = 0; i < 64; i++) {
-      if(this.board[i] != ''){
-        ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+    if(this.color){
+      for (let i = 0; i < 64; i++) {
+        if(this.board[i] != ''){
+          ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+        }
+      }
+    }else{
+      let cnt :number = 0;
+      for (let i = 63; i >= 0; i--) {
+        if(this.board[i] != ''){
+          ctx.drawImage(this.board[i], this.boardX[cnt], this.boardY[cnt], 60, 60)
+        }
+        cnt++;
       }
     }
+
+
     if(this.isDrag){
       this.drawValidFields();
-      ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      if(this.color){
+        ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      }else{
+        ctx.drawImage(this.board[63-this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      }
     }
     this.timeout = setTimeout(this.updateBoard, 1000/60)
   }
@@ -323,5 +342,9 @@ export class BoardComponent implements OnInit {
         ctx.closePath();
       }
     }
+  }
+
+  drawDeadPieces = () => {
+    
   }
 }
