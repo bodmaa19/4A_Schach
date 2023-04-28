@@ -1,5 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router";
+import {animate} from "@angular/animations";
 
 @Injectable({
   providedIn: 'root'
