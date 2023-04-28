@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SchachService} from "../schach.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-multi-player-board',
@@ -8,34 +8,40 @@ import {ActivatedRoute} from "@angular/router";
   styleUrls: ['./multi-player-board.component.css']
 })
 export class MultiPlayerBoardComponent implements OnInit {
-  initializationDone: boolean = false;
-
-  constructor(public schach: SchachService, public route: ActivatedRoute) {
+  constructor(public schach: SchachService, public route: ActivatedRoute, public router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
-  ngOnInit(): void {
-    if (this.route.component?.name == "GameComponent" && this.initializationDone == false) {
-      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      //setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      //setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      //setBoard("r2k3r/8/8/8/8/8/8/4K3")
+  async ngOnInit(): Promise<void> {
+    if (this.route.component?.name == "GameComponent") {
+      console.log("game");
+      console.log(this.board)
+      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
+      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
+      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
       this.drawBoard();
+      await this.setValidMoves(-1, -1);
       this.dragPiece();
-      this.updateBoard();
-      this.getFenString();
-      this.setValidMoves(-1, -1);
-      this.initializationDone = true;
+      console.log(this.board);
+      //this.updateBoard();
+      //this.getFenString();
+      //this.setValidMoves(-1, -1);
     } else {
-      this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      //setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      //setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      //setBoard("r2k3r/8/8/8/8/8/8/4K3")
+      console.log("game");
+      console.log(this.board)
+      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
+      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
+      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
       this.drawBoard();
-      // dragPiece();
-      this.updateBoard();
-      this.getFenString();
-      this.setValidMoves(-1, -1);
-      this.initializationDone = false;
+      await this.setValidMoves(-1, -1);
+      this.dragPiece();
+      console.log(this.board);
     }
   }
 
@@ -49,6 +55,8 @@ export class MultiPlayerBoardComponent implements OnInit {
   isDrag: boolean = false;
   dragIndex: number = 0;
   validMoves: any = [0];
+  color: boolean = true;
+  singleMode: boolean = false;
 
   timeout: number = 0;
   lastStart: number = -1;
@@ -60,7 +68,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     }
   }
 
-  setBoard = async (fenString : string) => {
+  setBoard = async (fenString : string) : Promise<void> => {
     await this.resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
@@ -81,10 +89,11 @@ export class MultiPlayerBoardComponent implements OnInit {
         idx += num;
       }
     }
-    this.updateBoard();
+    await this.updateBoard();
   }
 
   drawBoard = () => {
+    console.log("draw")
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -116,6 +125,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     let image = <HTMLImageElement>document.getElementById("k");
     canvas.width = 500;
     canvas.height = 500;
+
     for (let i = 0; i < 64; i++) {
       let x = i % 8 * this.FIELD;
       let y = Math.floor(i / 8) * this.FIELD;
@@ -123,33 +133,48 @@ export class MultiPlayerBoardComponent implements OnInit {
         this.boardX[i] = x;
         this.boardY[i] = y;
       }
-      if (i % 2 + Math.floor(i / 8) % 2 == 1) {
+      /*if (i % 2 + Math.floor(i / 8) % 2 == 1) {
         ctx.fillStyle = "#b58863";
       } else {
         ctx.fillStyle = "#f0d9b5";
+      }*/
+
+      if (i % 2 + Math.floor(i / 8) % 2 == 1) {
+        ctx.fillStyle = "#825324";
+      } else {
+        ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
         ctx.fillStyle = "#cdd26a";
       }
-
-      /*if (i % 2 + Math.floor(i / 8) % 2 == 1) {
-          ctx.fillStyle = "#825324";
-      } else {
-          ctx.fillStyle = "#e3c6aa";
-      }*/
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
-    for (let i = 0; i < 64; i++) {
-      if (this.board[i] != '') {
-        ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+    if(this.color){
+      for (let i = 0; i < 64; i++) {
+        if(this.board[i] != ''){
+          ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+        }
+      }
+    }else{
+      let cnt :number = 0;
+      for (let i = 63; i >= 0; i--) {
+        if(this.board[i] != ''){
+          ctx.drawImage(this.board[i], this.boardX[cnt], this.boardY[cnt], 60, 60)
+        }
+        cnt++;
       }
     }
-    if (this.isDrag) {
-      this.drawValidFields();
-      ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
-    }
 
-    this.timeout = setTimeout(this.updateBoard, 1000 / 60)
+
+    if(this.isDrag){
+      this.drawValidFields();
+      if(this.color){
+        ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      }else{
+        ctx.drawImage(this.board[63-this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      }
+    }
+    this.timeout = setTimeout(this.updateBoard, 1000/60)
   }
 
   isValidMove = (dragIndex: number, idx: number) => {
@@ -167,6 +192,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     let ctx = canvas.getContext("2d");
 
     canvas.onmousedown = (evt) => {
+      console.log("mouse Down")
       let rect = canvas.getBoundingClientRect();
       for (let i = 0; i < 64; i++) {
         let x = i % 8 * this.FIELD;
@@ -277,7 +303,6 @@ export class MultiPlayerBoardComponent implements OnInit {
         startPos: start,
         targetPos: target
       };
-      console.log(JSON.stringify(move))
       init = {
         method: 'POST',
         headers: {
@@ -288,7 +313,6 @@ export class MultiPlayerBoardComponent implements OnInit {
       fetch(url, init)
         .then(response => response.json())
         .then(json => {
-          console.log(json["fenString"])
           this.validMoves = json["moves"];
           this.lastStart = json["aiMove"].startPos;
           this.lastTarget = json["aiMove"].targetPos;
@@ -297,7 +321,6 @@ export class MultiPlayerBoardComponent implements OnInit {
         .catch(error => console.log('error', error));
     }
   }
-
 
   drawValidFields = () => {
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
@@ -312,9 +335,10 @@ export class MultiPlayerBoardComponent implements OnInit {
         let x = idx % 8 * this.FIELD + (this.FIELD / 2);
         let y = Math.floor(idx / 8) * this.FIELD + (this.FIELD / 2);
         if (this.board[idx] == '') {
-          ctx.fillStyle = "#6e6e42";
+          //ctx.fillStyle = "#6e6e42";
+          ctx.fillStyle = "#00AA00";
         } else {
-          ctx.fillStyle = "#FF0000";
+          ctx.fillStyle = "#AA0000";
         }
 
         ctx.arc(x, y, r, 0, 2 * Math.PI)
@@ -323,5 +347,9 @@ export class MultiPlayerBoardComponent implements OnInit {
         ctx.closePath();
       }
     }
+  }
+
+  drawDeadPieces = () => {
+
   }
 }
