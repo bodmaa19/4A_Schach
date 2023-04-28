@@ -17,32 +17,16 @@ export class BoardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.route.component?.name == "GameComponent") {
       console.log("game");
       console.log(this.board)
       await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
       this.drawBoard();
       await this.setValidMoves(-1, -1);
       this.dragPiece();
       console.log(this.board);
-      //this.updateBoard();
-      //this.getFenString();
-      //this.setValidMoves(-1, -1);
-    } else {
-      console.log("game");
-      console.log(this.board)
-      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      this.drawBoard();
-      await this.setValidMoves(-1, -1);
-      this.dragPiece();
-      console.log(this.board);
-    }
+    this.countdownLabel = document.getElementById("clockPlayer2") as HTMLLabelElement;
+    this.updateCountdownLabel();
+    this.startCountdown();
   }
 
   SIZE: number = 500;
@@ -351,5 +335,54 @@ export class BoardComponent implements OnInit {
 
   drawDeadPieces = () => {
 
+  }
+
+  // @ts-ignore
+  countdownLabel: HTMLLabelElement;
+  countdownTime: number = 10 * 60;
+  countdownInterval: any;
+  isCountingDown: boolean = false;
+
+  startCountdown() {
+    this.isCountingDown = true;
+
+    this.countdownInterval = setInterval(() => {
+      this.countdownTime--;
+      this.updateCountdownLabel();
+
+      if (this.countdownTime <= 0) {
+        this.stopCountdown();
+      }
+    }, 1000);
+  }
+
+  stopCountdown() {
+    clearInterval(this.countdownInterval);
+    this.isCountingDown = false;
+  }
+
+  resumeCountdown() {
+    if (!this.isCountingDown && this.countdownTime > 0) {
+      this.startCountdown();
+    }
+  }
+
+  increaseCountdown() {
+    this.countdownTime += 30;
+    this.updateCountdownLabel();
+  }
+
+  updateCountdownLabel() {
+    const minutes = Math.floor(this.countdownTime / 60);
+    const seconds = this.countdownTime % 60;
+
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    const formattedSeconds = String(seconds).padStart(2, "0");
+
+    this.countdownLabel.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+  }
+
+  ngOnDestroy(): void {
+    this.stopCountdown();
   }
 }

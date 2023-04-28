@@ -4,17 +4,7 @@
       <p>{{schach.opponentPlayer["username"]}}</p>
     </div>
     <div class="clock">
-      <div class="time player_1">🕒 10:00</div>
-      <!--<div class="timer">
-        <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">10</span>
-      </div>
-      <div class="control">
-        <button onClick="timer.start(1000)">Start</button>
-        <button onClick="timer.stop()">Stop</button>
-        <button onClick="timer.reset(60)">Reset</button>
-        <button onClick="timer.setMode(1)">Count up</button>
-        <button onClick="timer.setMode(0)">Count down</button>
-      </div>-->
+      <button class="player_1" id="clockPlayer1">🕒 10:00</button>
     </div>
     <div class="deadPiecesWhite"></div>
   </div>
@@ -25,17 +15,7 @@
   <div class="col-sm-3 player_2">
     <div class="deadPiecesBlack"></div>
     <div class="clock">
-      <div class="time player_2">🕒 10:00</div>
-      <!--<div class="timer">
-        <span class="hour">00</span>:<span class="minute">00</span>:<span class="second">10</span>
-      </div>
-      <div class="control">
-        <button onClick="timer.start(1000)">Start</button>
-        <button onClick="timer.stop()">Stop</button>
-        <button onClick="timer.reset(60)">Reset</button>
-        <button onClick="timer.setMode(1)">Count up</button>
-        <button onClick="timer.setMode(0)">Count down</button>
-      </div>-->
+      <button class="player_2" id="clockPlayer2">🕒 10:00</button>
     </div>
     <div class="player">
       <p>{{schach.player["username"]}}</p>
