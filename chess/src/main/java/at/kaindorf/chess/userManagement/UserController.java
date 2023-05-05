@@ -121,4 +121,6 @@ public class UserController
     }
 
     @RequestHeader(value = "Authorization") String token
+    @RequestBody UserData userData
+    @PathVariable Long id_1, @RequestParam Long id_2
 */
