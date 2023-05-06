@@ -24,9 +24,12 @@ export class BoardComponent implements OnInit {
       await this.setValidMoves(-1, -1);
       this.dragPiece();
       console.log(this.board);
-    this.countdownLabel = document.getElementById("clockPlayer2") as HTMLLabelElement;
-    this.updateCountdownLabel();
-    this.startCountdown();
+    this.countdownLabel1 = document.getElementById("clockPlayer1") as HTMLLabelElement;
+    this.countdownLabel2 = document.getElementById("clockPlayer2") as HTMLLabelElement;
+    this.updateCountdownLabel(this.countdownLabel1, this.countdownTime1, this.countdownInterval1, this.isCountingDown1);
+    this.startCountdown(this.countdownLabel1, this.countdownTime1, this.countdownInterval1, this.isCountingDown1);
+    this.updateCountdownLabel(this.countdownLabel2, this.countdownTime2, this.countdownInterval2, this.isCountingDown2);
+    this.startCountdown(this.countdownLabel2, this.countdownTime2, this.countdownInterval2, this.isCountingDown2);
   }
 
   SIZE: number = 500;
@@ -338,51 +341,56 @@ export class BoardComponent implements OnInit {
   }
 
   // @ts-ignore
-  countdownLabel: HTMLLabelElement;
-  countdownTime: number = 10 * 60;
-  countdownInterval: any;
-  isCountingDown: boolean = false;
+  countdownLabel1: HTMLLabelElement;
+  countdownTime1: number = 10 * 60;
+  countdownInterval1: any;
+  isCountingDown1: boolean = false;
+  // @ts-ignore
+  countdownLabel2: HTMLLabelElement;
+  countdownTime2: number = 10 * 60;
+  countdownInterval2: any;
+  isCountingDown2: boolean = false;
 
-  startCountdown() {
-    this.isCountingDown = true;
+  startCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
+    isCountingDown = true;
 
-    this.countdownInterval = setInterval(() => {
-      this.countdownTime--;
-      this.updateCountdownLabel();
+    countdownInterval = setInterval(() => {
+      countdownTime--;
+      this.updateCountdownLabel(countdownLabel, countdownTime, countdownInterval, isCountingDown);
 
-      if (this.countdownTime <= 0) {
-        this.stopCountdown();
+      if (countdownTime <= 0) {
+        this.stopCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
       }
     }, 1000);
   }
 
-  stopCountdown() {
-    clearInterval(this.countdownInterval);
-    this.isCountingDown = false;
+  stopCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
+    clearInterval(countdownInterval);
+    isCountingDown = false;
   }
 
-  resumeCountdown() {
-    if (!this.isCountingDown && this.countdownTime > 0) {
-      this.startCountdown();
+  resumeCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
+    if (!isCountingDown && countdownTime > 0) {
+      this.startCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
     }
   }
 
-  increaseCountdown() {
-    this.countdownTime += 30;
-    this.updateCountdownLabel();
+  increaseCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
+    countdownTime += 30;
+    this.updateCountdownLabel(countdownLabel, countdownTime, countdownInterval, isCountingDown);
   }
 
-  updateCountdownLabel() {
-    const minutes = Math.floor(this.countdownTime / 60);
-    const seconds = this.countdownTime % 60;
+  updateCountdownLabel(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
+    const minutes = Math.floor(countdownTime / 60);
+    const seconds = countdownTime % 60;
 
     const formattedMinutes = String(minutes).padStart(2, "0");
     const formattedSeconds = String(seconds).padStart(2, "0");
 
-    this.countdownLabel.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+    countdownLabel.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
   }
 
-  ngOnDestroy(): void {
-    this.stopCountdown();
+  ngOnDestroy(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean): void {
+    this.stopCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
   }
 }
