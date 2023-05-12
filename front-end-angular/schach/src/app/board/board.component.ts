@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SchachService} from "../schach.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-board',
@@ -8,30 +8,28 @@ import {ActivatedRoute} from "@angular/router";
   styleUrls: ['./board.component.css']
 })
 export class BoardComponent implements OnInit {
-  constructor(public schach: SchachService, public route: ActivatedRoute) {
+  constructor(public schach: SchachService, public route: ActivatedRoute, public router: Router) {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.router.navigate(['/']);
+      }
+    });
   }
 
   async ngOnInit(): Promise<void> {
-    if (this.route.component?.name == "GameComponent") {
-      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      this.drawBoard();
-      await this.setValidMoves(-1, -1);
-      this.dragPiece();
-      //this.updateBoard();
-      //this.getFenString();
-      //this.setValidMoves(-1, -1);
-    } else {
-      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
-      // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
-      // setBoard("r2k3r/8/8/8/8/8/8/4K3")
-      this.drawBoard();
-      await this.setValidMoves(-1, -1);
-      this.dragPiece();
-    }
+    console.log("game");
+    console.log(this.board)
+    await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    this.drawBoard();
+    await this.setValidMoves(-1, -1);
+    this.dragPiece();
+    console.log(this.board);
+    this.countdownLabel1 = document.getElementById("clockPlayer1") as HTMLLabelElement;
+    this.countdownLabel2 = document.getElementById("clockPlayer2") as HTMLLabelElement;
+    this.updateCountdownLabel();
+    this.isPlayer = true;
+    this.updateCountdownLabel();
+    this.startCountdown();
   }
 
   SIZE: number = 500;
@@ -57,7 +55,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  setBoard = async (fenString: string): Promise<void> => {
+  setBoard = async (fenString : string) : Promise<void> => {
     await this.resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
@@ -79,9 +77,17 @@ export class BoardComponent implements OnInit {
       }
     }
     await this.updateBoard();
+    if (this.isStarted)
+    {
+      this.stopCountdown();
+      this.increaseCountdown();
+      this.isPlayer = true;
+      this.resumeCountdown();
+    }
   }
 
   drawBoard = () => {
+    console.log("draw")
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -137,33 +143,31 @@ export class BoardComponent implements OnInit {
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
-    if (this.color) {
+    if(this.color){
       for (let i = 0; i < 64; i++) {
-        if (this.board[i] != '') {
+        if(this.board[i] != ''){
           ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
         }
       }
-    } else {
-      let cnt: number = 0;
+    }else{
+      let cnt :number = 0;
       for (let i = 63; i >= 0; i--) {
-        if (this.board[i] != '') {
+        if(this.board[i] != ''){
           ctx.drawImage(this.board[i], this.boardX[cnt], this.boardY[cnt], 60, 60)
         }
         cnt++;
       }
     }
 
-
-    if (this.isDrag) {
+    if(this.isDrag){
       this.drawValidFields();
-      if (this.color) {
+      if(this.color){
         ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
-      } else {
-        ctx.drawImage(this.board[63 - this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      }else{
+        ctx.drawImage(this.board[63-this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
       }
     }
-    this.drawDeadPieces();
-    this.timeout = setTimeout(this.updateBoard, 1000 / 60)
+    this.timeout = setTimeout(this.updateBoard, 1000/60)
   }
 
   isValidMove = (dragIndex: number, idx: number) => {
@@ -181,6 +185,7 @@ export class BoardComponent implements OnInit {
     let ctx = canvas.getContext("2d");
 
     canvas.onmousedown = (evt) => {
+      console.log("mouse Down")
       let rect = canvas.getBoundingClientRect();
       for (let i = 0; i < 64; i++) {
         let x = i % 8 * this.FIELD;
@@ -232,7 +237,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  getFieldIndex = (x: number, y: number) => {
+  getFieldIndex = (x : number, y : number) => {
     return Math.floor(x / this.FIELD) + Math.floor(y / this.FIELD) * 8;
   }
 
@@ -266,11 +271,12 @@ export class BoardComponent implements OnInit {
     if (num != 0) {
       fen += num;
     }
+    console.log(fen);
     return fen;
   }
 
   //change
-  setValidMoves = (start: any, target: any) => {
+  setValidMoves = (start : any, target : any) => {
     this.validMoves = [0];
     let init: object;
     let url: string;
@@ -306,6 +312,18 @@ export class BoardComponent implements OnInit {
           this.setBoard(json["fenString"]);
         })
         .catch(error => console.log('error', error));
+      this.stopCountdown();
+      this.increaseCountdown();
+      this.isPlayer = false;
+      if (this.isStarted == false)
+      {
+        this.startCountdown();
+        this.isStarted = true;
+      }
+      else
+      {
+        this.resumeCountdown();
+      }
     }
   }
 
@@ -335,14 +353,18 @@ export class BoardComponent implements OnInit {
       }
     }
   }
+
   firstNumberOfPieces: number[] = [];
+
   drawDeadPieces = () => {
     let fen: string = this.getFenString();
     let numberOfPieces: number[] = [];
     let images: any = document.getElementsByClassName("piece");
     let blackPieces: string = "";
     let whitePieces: string = "";
+
     console.log(this.firstNumberOfPieces[0])
+
     if (this.firstNumberOfPieces[0] == undefined) {
       for (let i = 0; i < 12; i++) {
         let id: string = images[i].getAttribute("id");
@@ -368,5 +390,119 @@ export class BoardComponent implements OnInit {
     (document.getElementsByClassName("deadPiecesBlack"))[0].innerHTML = blackPieces;
     // @ts-ignore
     (document.getElementsByClassName("deadPiecesWhite"))[0].innerHTML = whitePieces;
+  }
+
+  // @ts-ignore
+  countdownLabel1: HTMLLabelElement;
+  countdownTime1: number = 10 * 60;
+  countdownInterval1: any;
+  isCountingDown1: boolean = false;
+  // @ts-ignore
+  countdownLabel2: HTMLLabelElement;
+  countdownTime2: number = 10 * 60;
+  countdownInterval2: any;
+  isCountingDown2: boolean = false;
+  isPlayer : boolean = false;
+  isStarted : boolean = false;
+
+  startCountdown() {
+    if (this.isPlayer)
+    {
+      this.isCountingDown2 = true;
+
+      this.countdownInterval2 = setInterval(() => {
+        this.countdownTime2--;
+        this.updateCountdownLabel();
+
+        if (this.countdownTime2 <= 0) {
+          this.stopCountdown();
+          alert("TIME OVER !!!");
+          this.schach.router.navigate(['/']);
+        }
+      }, 1000);
+    }
+    else
+    {
+      this.isCountingDown1 = true;
+
+      this.countdownInterval1 = setInterval(() => {
+        this.countdownTime1--;
+        this.updateCountdownLabel();
+
+        if (this.countdownTime1 <= 0) {
+          this.stopCountdown();
+          alert("TIME OVER !!!");
+          this.schach.router.navigate(['/']);
+        }
+      }, 1000);
+    }
+  }
+
+  stopCountdown() {
+    if (this.isPlayer)
+    {
+      clearInterval(this.countdownInterval2);
+      this.isCountingDown2 = false;
+    }
+    else
+    {
+      clearInterval(this.countdownInterval1);
+      this.isCountingDown1 = false;
+    }
+  }
+
+  resumeCountdown() {
+    if (this.isPlayer)
+    {
+      if (!this.isCountingDown2 && this.countdownTime2 > 0) {
+        this.startCountdown();
+      }
+    }
+    else
+    {
+      if (!this.isCountingDown1 && this.countdownTime1 > 0) {
+        this.startCountdown();
+      }
+    }
+  }
+
+  increaseCountdown() {
+    if (this.isPlayer)
+    {
+      this.countdownTime2 += 30;
+      this.updateCountdownLabel();
+    }
+    else
+    {
+      this.countdownTime1 += 30;
+      this.updateCountdownLabel();
+    }
+  }
+
+  updateCountdownLabel() {
+    if (this.isPlayer)
+    {
+      const minutes = Math.floor(this.countdownTime2 / 60);
+      const seconds = this.countdownTime2 % 60;
+
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+
+      this.countdownLabel2.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+    }
+    else
+    {
+      const minutes = Math.floor(this.countdownTime1 / 60);
+      const seconds = this.countdownTime1 % 60;
+
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+
+      this.countdownLabel1.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopCountdown();
   }
 }

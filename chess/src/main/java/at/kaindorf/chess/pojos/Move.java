@@ -146,7 +146,7 @@ public class Move {
             if (idx + moveArr[i] >= 0 && idx + moveArr[i] < board.length) {
                 if (isDifferentColor(p.getColor(), board[idx + moveArr[i]].getPiece().getColor())
                         && (idx + moveArr[i]) / 8 != pRow + ((p.getColor() == 'w') ? -2 : 2) &&
-                    getColorOfField(idx) == getColorOfField(idx + moveArr[i])) {
+                        getColorOfField(idx) == getColorOfField(idx + moveArr[i])) {
                     moves.add(new Move(idx, idx + moveArr[i]));
                 }
             }
@@ -177,25 +177,23 @@ public class Move {
         List<ChessPiece> rooks = Arrays.stream(board.getBoard()).filter(p -> p.getPiece().equals((turn) ? Piece.WR : Piece.BR)).collect(Collectors.toList());
         int returnValue = 0;
         if (rooks.size() == 2 && king.getNumberOfMoves() == 0) {
-            if (true) {
-                boolean isEmptyLeft = true;
-                boolean isEmptyRight = true;
-                for (int i = kingIdx - 3; i < kingIdx + 3; i++) {
-                    if (i < kingIdx) {
-                        if (!board.getBoard()[i].getPiece().equals(Piece.NO)) {
-                            isEmptyLeft = false;
-                        }
-                    } else if (i > kingIdx) {
-                        if (!board.getBoard()[i].getPiece().equals(Piece.NO)) {
-                            isEmptyRight = false;
-                        }
+            boolean isEmptyLeft = true;
+            boolean isEmptyRight = true;
+            for (int i = kingIdx - 3; i < kingIdx + 3; i++) {
+                if (i < kingIdx) {
+                    if (!board.getBoard()[i].getPiece().equals(Piece.NO)) {
+                        isEmptyLeft = false;
+                    }
+                } else if (i > kingIdx) {
+                    if (!board.getBoard()[i].getPiece().equals(Piece.NO)) {
+                        isEmptyRight = false;
                     }
                 }
 
                 if (isEmptyLeft && rooks.get(0).getNumberOfMoves() == 0) {
                     returnValue += 1;
                 }
-                if (isEmptyRight&& rooks.get(1).getNumberOfMoves() == 0) {
+                if (isEmptyRight && rooks.get(1).getNumberOfMoves() == 0) {
                     returnValue += 2;
                 }
             }

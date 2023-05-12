@@ -1,5 +1,6 @@
 import {Injectable, OnInit} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot} from "@angular/router";
+import {animate} from "@angular/animations";
 
 @Injectable({
   providedIn: 'root'
@@ -169,7 +170,7 @@ export class SchachService implements OnInit, CanActivate {
       }
     }).catch(error =>
     {
-      alert(error.toString());
+      // alert(error.toString());
       this.router.navigate(['/']);
     });
     return true;
