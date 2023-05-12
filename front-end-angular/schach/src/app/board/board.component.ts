@@ -26,10 +26,10 @@ export class BoardComponent implements OnInit {
       console.log(this.board);
     this.countdownLabel1 = document.getElementById("clockPlayer1") as HTMLLabelElement;
     this.countdownLabel2 = document.getElementById("clockPlayer2") as HTMLLabelElement;
-    this.updateCountdownLabel(this.countdownLabel1, this.countdownTime1, this.countdownInterval1, this.isCountingDown1);
-    this.startCountdown(this.countdownLabel1, this.countdownTime1, this.countdownInterval1, this.isCountingDown1);
-    this.updateCountdownLabel(this.countdownLabel2, this.countdownTime2, this.countdownInterval2, this.isCountingDown2);
-    this.startCountdown(this.countdownLabel2, this.countdownTime2, this.countdownInterval2, this.isCountingDown2);
+    this.updateCountdownLabel();
+    this.isPlayer = true;
+    this.updateCountdownLabel();
+    this.startCountdown();
   }
 
   SIZE: number = 500;
@@ -77,6 +77,13 @@ export class BoardComponent implements OnInit {
       }
     }
     await this.updateBoard();
+    if (this.isStarted)
+    {
+      this.stopCountdown();
+      this.increaseCountdown();
+      this.isPlayer = true;
+      this.resumeCountdown();
+    }
   }
 
   drawBoard = () => {
@@ -151,7 +158,6 @@ export class BoardComponent implements OnInit {
         cnt++;
       }
     }
-
 
     if(this.isDrag){
       this.drawValidFields();
@@ -306,6 +312,18 @@ export class BoardComponent implements OnInit {
           this.setBoard(json["fenString"]);
         })
         .catch(error => console.log('error', error));
+      this.stopCountdown();
+      this.increaseCountdown();
+      this.isPlayer = false;
+      if (this.isStarted == false)
+      {
+        this.startCountdown();
+        this.isStarted = true;
+      }
+      else
+      {
+        this.resumeCountdown();
+      }
     }
   }
 
@@ -336,8 +354,42 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  drawDeadPieces = () => {
+  firstNumberOfPieces: number[] = [];
 
+  drawDeadPieces = () => {
+    let fen: string = this.getFenString();
+    let numberOfPieces: number[] = [];
+    let images: any = document.getElementsByClassName("piece");
+    let blackPieces: string = "";
+    let whitePieces: string = "";
+
+    console.log(this.firstNumberOfPieces[0])
+
+    if (this.firstNumberOfPieces[0] == undefined) {
+      for (let i = 0; i < 12; i++) {
+        let id: string = images[i].getAttribute("id");
+        this.firstNumberOfPieces[i] = fen.split(id).length;
+      }
+    }
+    for (let i = 0; i < 12; i++) {
+      let id: string = images[i].getAttribute("id");
+      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length; j++) {
+        //console.log(images[i])
+        if (id.length == 2) {
+          blackPieces += images[i].outerHTML;
+        } else {
+          whitePieces += images[i].outerHTML;
+        }
+      }
+    }
+    console.log(blackPieces);
+    console.log(whitePieces);
+    console.log(document.getElementsByTagName("div"));
+
+    // @ts-ignore
+    (document.getElementsByClassName("deadPiecesBlack"))[0].innerHTML = blackPieces;
+    // @ts-ignore
+    (document.getElementsByClassName("deadPiecesWhite"))[0].innerHTML = whitePieces;
   }
 
   // @ts-ignore
@@ -350,47 +402,107 @@ export class BoardComponent implements OnInit {
   countdownTime2: number = 10 * 60;
   countdownInterval2: any;
   isCountingDown2: boolean = false;
+  isPlayer : boolean = false;
+  isStarted : boolean = false;
 
-  startCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
-    isCountingDown = true;
+  startCountdown() {
+    if (this.isPlayer)
+    {
+      this.isCountingDown2 = true;
 
-    countdownInterval = setInterval(() => {
-      countdownTime--;
-      this.updateCountdownLabel(countdownLabel, countdownTime, countdownInterval, isCountingDown);
+      this.countdownInterval2 = setInterval(() => {
+        this.countdownTime2--;
+        this.updateCountdownLabel();
 
-      if (countdownTime <= 0) {
-        this.stopCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
-      }
-    }, 1000);
-  }
+        if (this.countdownTime2 <= 0) {
+          this.stopCountdown();
+          alert("TIME OVER !!!");
+          this.schach.router.navigate(['/']);
+        }
+      }, 1000);
+    }
+    else
+    {
+      this.isCountingDown1 = true;
 
-  stopCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
-    clearInterval(countdownInterval);
-    isCountingDown = false;
-  }
+      this.countdownInterval1 = setInterval(() => {
+        this.countdownTime1--;
+        this.updateCountdownLabel();
 
-  resumeCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
-    if (!isCountingDown && countdownTime > 0) {
-      this.startCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
+        if (this.countdownTime1 <= 0) {
+          this.stopCountdown();
+          alert("TIME OVER !!!");
+          this.schach.router.navigate(['/']);
+        }
+      }, 1000);
     }
   }
 
-  increaseCountdown(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
-    countdownTime += 30;
-    this.updateCountdownLabel(countdownLabel, countdownTime, countdownInterval, isCountingDown);
+  stopCountdown() {
+    if (this.isPlayer)
+    {
+      clearInterval(this.countdownInterval2);
+      this.isCountingDown2 = false;
+    }
+    else
+    {
+      clearInterval(this.countdownInterval1);
+      this.isCountingDown1 = false;
+    }
   }
 
-  updateCountdownLabel(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean) {
-    const minutes = Math.floor(countdownTime / 60);
-    const seconds = countdownTime % 60;
-
-    const formattedMinutes = String(minutes).padStart(2, "0");
-    const formattedSeconds = String(seconds).padStart(2, "0");
-
-    countdownLabel.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+  resumeCountdown() {
+    if (this.isPlayer)
+    {
+      if (!this.isCountingDown2 && this.countdownTime2 > 0) {
+        this.startCountdown();
+      }
+    }
+    else
+    {
+      if (!this.isCountingDown1 && this.countdownTime1 > 0) {
+        this.startCountdown();
+      }
+    }
   }
 
-  ngOnDestroy(countdownLabel : HTMLLabelElement, countdownTime : number, countdownInterval : any, isCountingDown : boolean): void {
-    this.stopCountdown(countdownLabel, countdownTime, countdownInterval, isCountingDown);
+  increaseCountdown() {
+    if (this.isPlayer)
+    {
+      this.countdownTime2 += 30;
+      this.updateCountdownLabel();
+    }
+    else
+    {
+      this.countdownTime1 += 30;
+      this.updateCountdownLabel();
+    }
+  }
+
+  updateCountdownLabel() {
+    if (this.isPlayer)
+    {
+      const minutes = Math.floor(this.countdownTime2 / 60);
+      const seconds = this.countdownTime2 % 60;
+
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+
+      this.countdownLabel2.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+    }
+    else
+    {
+      const minutes = Math.floor(this.countdownTime1 / 60);
+      const seconds = this.countdownTime1 % 60;
+
+      const formattedMinutes = String(minutes).padStart(2, "0");
+      const formattedSeconds = String(seconds).padStart(2, "0");
+
+      this.countdownLabel1.innerText = `🕒 ${formattedMinutes}:${formattedSeconds}`;
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopCountdown();
   }
 }
