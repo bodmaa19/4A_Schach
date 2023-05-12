@@ -469,12 +469,12 @@ export class BoardComponent implements OnInit {
   increaseCountdown() {
     if (this.isPlayer)
     {
-      this.countdownTime2 += 30;
+      this.countdownTime2 += 10;
       this.updateCountdownLabel();
     }
     else
     {
-      this.countdownTime1 += 30;
+      this.countdownTime1 += 10;
       this.updateCountdownLabel();
     }
   }
