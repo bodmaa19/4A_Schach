@@ -27,6 +27,7 @@ const resetBoard = () => {
         board[i] = "";
     }
 };
+// @ts-ignore
 const setBoard = async (fenString) => {
     await resetBoard();
     let idx = 0;

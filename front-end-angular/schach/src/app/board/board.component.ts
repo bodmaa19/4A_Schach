@@ -17,13 +17,13 @@ export class BoardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-      console.log("game");
-      console.log(this.board)
-      await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-      this.drawBoard();
-      await this.setValidMoves(-1, -1);
-      this.dragPiece();
-      console.log(this.board);
+    console.log("game");
+    console.log(this.board)
+    await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    this.drawBoard();
+    await this.setValidMoves(-1, -1);
+    this.dragPiece();
+    console.log(this.board);
     this.countdownLabel1 = document.getElementById("clockPlayer1") as HTMLLabelElement;
     this.countdownLabel2 = document.getElementById("clockPlayer2") as HTMLLabelElement;
     this.updateCountdownLabel();
@@ -134,9 +134,9 @@ export class BoardComponent implements OnInit {
       }*/
 
       if (i % 2 + Math.floor(i / 8) % 2 == 1) {
-          ctx.fillStyle = "#825324";
+        ctx.fillStyle = "#825324";
       } else {
-          ctx.fillStyle = "#e3c6aa";
+        ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
         ctx.fillStyle = "#cdd26a";
