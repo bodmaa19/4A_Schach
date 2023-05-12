@@ -1,12 +1,10 @@
 package at.kaindorf.chess.board;
 
 import at.kaindorf.chess.ai.ChessAi;
-import at.kaindorf.chess.pojos.Castling;
 import at.kaindorf.chess.pojos.ChessReturn;
 import at.kaindorf.chess.pojos.Move;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController

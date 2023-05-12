@@ -13,8 +13,6 @@ export class BoardComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     if (this.route.component?.name == "GameComponent") {
-      console.log("game");
-      console.log(this.board)
       await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
@@ -22,13 +20,10 @@ export class BoardComponent implements OnInit {
       this.drawBoard();
       await this.setValidMoves(-1, -1);
       this.dragPiece();
-      console.log(this.board);
       //this.updateBoard();
       //this.getFenString();
       //this.setValidMoves(-1, -1);
     } else {
-      console.log("game");
-      console.log(this.board)
       await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
       // setBoard("r1bqkb1r/ppp2ppp/2n2n2/3pp3/3PP3/2N2N2/PPP2PPP/R1BQKB1R")
       // setBoard("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R")
@@ -36,7 +31,6 @@ export class BoardComponent implements OnInit {
       this.drawBoard();
       await this.setValidMoves(-1, -1);
       this.dragPiece();
-      console.log(this.board);
     }
   }
 
@@ -63,7 +57,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  setBoard = async (fenString : string) : Promise<void> => {
+  setBoard = async (fenString: string): Promise<void> => {
     await this.resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
@@ -88,7 +82,6 @@ export class BoardComponent implements OnInit {
   }
 
   drawBoard = () => {
-    console.log("draw")
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
     let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
@@ -135,25 +128,25 @@ export class BoardComponent implements OnInit {
       }*/
 
       if (i % 2 + Math.floor(i / 8) % 2 == 1) {
-          ctx.fillStyle = "#825324";
+        ctx.fillStyle = "#825324";
       } else {
-          ctx.fillStyle = "#e3c6aa";
+        ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
         ctx.fillStyle = "#cdd26a";
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
-    if(this.color){
+    if (this.color) {
       for (let i = 0; i < 64; i++) {
-        if(this.board[i] != ''){
+        if (this.board[i] != '') {
           ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
         }
       }
-    }else{
-      let cnt :number = 0;
+    } else {
+      let cnt: number = 0;
       for (let i = 63; i >= 0; i--) {
-        if(this.board[i] != ''){
+        if (this.board[i] != '') {
           ctx.drawImage(this.board[i], this.boardX[cnt], this.boardY[cnt], 60, 60)
         }
         cnt++;
@@ -161,15 +154,16 @@ export class BoardComponent implements OnInit {
     }
 
 
-    if(this.isDrag){
+    if (this.isDrag) {
       this.drawValidFields();
-      if(this.color){
+      if (this.color) {
         ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
-      }else{
-        ctx.drawImage(this.board[63-this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      } else {
+        ctx.drawImage(this.board[63 - this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
       }
     }
-    this.timeout = setTimeout(this.updateBoard, 1000/60)
+    this.drawDeadPieces();
+    this.timeout = setTimeout(this.updateBoard, 1000 / 60)
   }
 
   isValidMove = (dragIndex: number, idx: number) => {
@@ -187,7 +181,6 @@ export class BoardComponent implements OnInit {
     let ctx = canvas.getContext("2d");
 
     canvas.onmousedown = (evt) => {
-      console.log("mouse Down")
       let rect = canvas.getBoundingClientRect();
       for (let i = 0; i < 64; i++) {
         let x = i % 8 * this.FIELD;
@@ -239,7 +232,7 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  getFieldIndex = (x : number, y : number) => {
+  getFieldIndex = (x: number, y: number) => {
     return Math.floor(x / this.FIELD) + Math.floor(y / this.FIELD) * 8;
   }
 
@@ -273,12 +266,11 @@ export class BoardComponent implements OnInit {
     if (num != 0) {
       fen += num;
     }
-    console.log(fen);
     return fen;
   }
 
   //change
-  setValidMoves = (start : any, target : any) => {
+  setValidMoves = (start: any, target: any) => {
     this.validMoves = [0];
     let init: object;
     let url: string;
@@ -343,8 +335,38 @@ export class BoardComponent implements OnInit {
       }
     }
   }
-
+  firstNumberOfPieces: number[] = [];
   drawDeadPieces = () => {
-    
+    let fen: string = this.getFenString();
+    let numberOfPieces: number[] = [];
+    let images: any = document.getElementsByClassName("piece");
+    let blackPieces: string = "";
+    let whitePieces: string = "";
+    console.log(this.firstNumberOfPieces[0])
+    if (this.firstNumberOfPieces[0] == undefined) {
+      for (let i = 0; i < 12; i++) {
+        let id: string = images[i].getAttribute("id");
+        this.firstNumberOfPieces[i] = fen.split(id).length;
+      }
+    }
+    for (let i = 0; i < 12; i++) {
+      let id: string = images[i].getAttribute("id");
+      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length; j++) {
+        //console.log(images[i])
+        if (id.length == 2) {
+          blackPieces += images[i].outerHTML;
+        } else {
+          whitePieces += images[i].outerHTML;
+        }
+      }
+    }
+    console.log(blackPieces);
+    console.log(whitePieces);
+    console.log(document.getElementsByTagName("div"));
+
+    // @ts-ignore
+    (document.getElementsByClassName("deadPiecesBlack"))[0].innerHTML = blackPieces;
+    // @ts-ignore
+    (document.getElementsByClassName("deadPiecesWhite"))[0].innerHTML = whitePieces;
   }
 }

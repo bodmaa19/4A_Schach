@@ -177,7 +177,7 @@ public class Move {
         List<ChessPiece> rooks = Arrays.stream(board.getBoard()).filter(p -> p.getPiece().equals((turn) ? Piece.WR : Piece.BR)).collect(Collectors.toList());
         int returnValue = 0;
         if (rooks.size() == 2 && king.getNumberOfMoves() == 0) {
-            if (rooks.get(0).getNumberOfMoves() == 0 && rooks.get(1).getNumberOfMoves() == 0) {
+            if (true) {
                 boolean isEmptyLeft = true;
                 boolean isEmptyRight = true;
                 for (int i = kingIdx - 3; i < kingIdx + 3; i++) {
@@ -192,10 +192,10 @@ public class Move {
                     }
                 }
 
-                if (isEmptyLeft) {
+                if (isEmptyLeft && rooks.get(0).getNumberOfMoves() == 0) {
                     returnValue += 1;
                 }
-                if (isEmptyRight) {
+                if (isEmptyRight&& rooks.get(1).getNumberOfMoves() == 0) {
                     returnValue += 2;
                 }
             }
