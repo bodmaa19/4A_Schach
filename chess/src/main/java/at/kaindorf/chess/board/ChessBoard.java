@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 public class ChessBoard {
     private ChessPiece[] board = new ChessPiece[64];
     private boolean whiteTurn = false;
+    private String moveHistoryStr = "";
+    private Move lastMove;
 
     public ChessBoard() {
         setBoardWithFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
@@ -25,6 +27,7 @@ public class ChessBoard {
         for (int i = 0; i < chessBoard.board.length; i++) {
             this.board[i] = new ChessPiece(chessBoard.getBoard()[i].getPiece(), chessBoard.getBoard()[i].getNumberOfMoves());
         }
+        moveHistoryStr = String.valueOf(chessBoard.moveHistoryStr);
         this.whiteTurn = !chessBoard.isWhiteTurn();
     }
 
@@ -33,6 +36,7 @@ public class ChessBoard {
             this.board[i] = new ChessPiece(chessBoard.getBoard()[i].getPiece(), chessBoard.getBoard()[i].getNumberOfMoves());
         }
         this.whiteTurn = chessBoard.isWhiteTurn();
+        moveHistoryStr = String.valueOf(chessBoard.moveHistoryStr);
     }
 
     public ChessBoard(String fenString) {
@@ -62,7 +66,7 @@ public class ChessBoard {
         }
     }
 
-    public String generateFenString(){
+    public String generateFenString() {
         String fen = "";
         int num = 0;
         int row = 0;
@@ -70,7 +74,7 @@ public class ChessBoard {
         for (int i = 0; i < board.length; i++) {
             if (!board[i].getPiece().equals(Piece.NO)) {
                 Piece p = board[i].getPiece();
-                fen += (num == 0) ? p.getFen() : num +  p.getFen();
+                fen += (num == 0) ? p.getFen() : num + p.getFen();
                 num = 0;
             } else {
                 if (num == 8) {
@@ -136,11 +140,11 @@ public class ChessBoard {
         Piece king = (whiteTurn) ? Piece.WK : Piece.BK;
         int castling = Move.isCastling(this);
         int kingIdx = findPiece(king);
-        if(castling == 1 || castling == 3){
-            moves.add(new Move(kingIdx, kingIdx-2));
+        if (castling == 1 || castling == 3) {
+            moves.add(new Move(kingIdx, kingIdx - 2));
         }
-        if(castling == 2 || castling == 3){
-            moves.add(new Move(kingIdx, kingIdx+2));
+        if (castling == 2 || castling == 3) {
+            moves.add(new Move(kingIdx, kingIdx + 2));
         }
 
         if (check) {
@@ -172,19 +176,30 @@ public class ChessBoard {
         }
         board[move.getTargetPos()] = new ChessPiece(board[move.getStartPos()].getPiece(), board[move.getStartPos()].getNumberOfMoves());
         board[move.getStartPos()] = new ChessPiece(Piece.NO, 0);
-
-        if(board[move.getTargetPos()].getPiece().equals((whiteTurn) ? Piece.WK : Piece.BK)){
+        lastMove = move;
+        if (board[move.getTargetPos()].getPiece().equals((whiteTurn) ? Piece.WK : Piece.BK)) {
             int kingDiff = move.getTargetPos() - move.getStartPos();
             System.out.println("King: " + kingDiff);
-            if(Math.abs(kingDiff) == 2){
-                if (kingDiff < 0){
-                    board[move.getTargetPos()+1] = board[move.getStartPos()-4];
-                    board[move.getStartPos()-4] = new ChessPiece(Piece.NO, 0);
-                }else{
-                    board[move.getTargetPos()-1] = board[move.getStartPos()+3];
-                    board[move.getStartPos()+3] = new ChessPiece(Piece.NO, 0);
+            if (Math.abs(kingDiff) == 2) {
+                if (kingDiff < 0) {
+                    board[move.getTargetPos() + 1] = board[move.getStartPos() - 4];
+                    board[move.getStartPos() - 4] = new ChessPiece(Piece.NO, 0);
+                } else {
+                    board[move.getTargetPos() - 1] = board[move.getStartPos() + 3];
+                    board[move.getStartPos() + 3] = new ChessPiece(Piece.NO, 0);
                 }
             }
+        }
+        int numberOfMoves = getTotalNumberOfMoves();
+        if (numberOfMoves <= 8 && realMove) {
+            ChessPiece p = board[move.getTargetPos()];
+            if (isWhiteTurn()) {
+                moveHistoryStr += (numberOfMoves / 2) + 1 + ".";
+            }
+            if (!(p.getPiece().equals(Piece.BP) || p.getPiece().equals(Piece.WP))) {
+                moveHistoryStr += p.getPiece().getFen().toUpperCase();
+            }
+            moveHistoryStr += (char)(move.getTargetPos() % 8 + 'a') + "" + Math.abs(8-(move.getTargetPos() / 8)) + " ";
         }
     }
 
@@ -238,6 +253,18 @@ public class ChessBoard {
 
     public ChessPiece[] getBoard() {
         return board;
+    }
+
+    public int getTotalNumberOfMoves() {
+        return Arrays.stream(board).mapToInt(ChessPiece::getNumberOfMoves).sum();
+    }
+
+    public String getMoveHistoryStr() {
+        return moveHistoryStr;
+    }
+
+    public Move getLastMove() {
+        return lastMove;
     }
 
     public static void main(String[] args) {

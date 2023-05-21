@@ -12,4 +12,6 @@ public class ChessReturn {
     private String fenString;
     private List<Move> moves;
     private Move aiMove;
+    private boolean white;
+    private boolean isWhiteTurn;
 }

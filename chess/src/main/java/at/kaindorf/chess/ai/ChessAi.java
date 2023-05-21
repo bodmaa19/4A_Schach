@@ -1,5 +1,6 @@
 package at.kaindorf.chess.ai;
 
+import at.kaindorf.chess.ai.book.BookIO;
 import at.kaindorf.chess.board.ChessBoard;
 import at.kaindorf.chess.pojos.ChessPiece;
 import at.kaindorf.chess.pojos.Move;
@@ -15,29 +16,26 @@ public class ChessAi {
 
 
     public static Move calculateBestMove(ChessBoard board) {
-        //List<Move> moves = board.getAllValidMoves(true);
-        //wishedDepth = 0;
-        //int move0 = miniMax(board, wishedDepth, Integer.MIN_VALUE, Integer.MAX_VALUE);
-        //wishedDepth = 0;
-        //int move1 = miniMax(board, wishedDepth, Integer.MIN_VALUE, Integer.MAX_VALUE) * -1;
-        int move = miniMax(board, wishedDepth, Integer.MIN_VALUE + 100, Integer.MAX_VALUE - 100);
-        //System.out.println(move0 + " " + move1 + " " + move2);
-        System.out.println(move);
-        System.out.println(bestMove);
-        System.out.println(eval);
-        /*if (bestMove.get(0).equals(bestMove.get(1)) && bestMove.get(0).equals(bestMove.get(2))) {
-            List<Move> moves = board.getAllValidMoves(true);
-            Random rand = new Random();
-            return moves.get(rand.nextInt(moves.size()));
-        }*/
+        bestMove = null;
+        if (board.getTotalNumberOfMoves() < 8) {
+            try {
+                String nextMoveStr = board.getMoveHistoryStr() + BookIO.getNextMove(board.getMoveHistoryStr()) + " ";
+                System.out.println(nextMoveStr);
+                for (Move move : board.getAllValidMoves(true)) {
+                    ChessBoard nextMoveBoard = new ChessBoard(board, false);
+                    nextMoveBoard.makeMove(move, true);
+                    if (nextMoveBoard.getMoveHistoryStr().equals(nextMoveStr)) {
+                        bestMove = move;
+                    }
+                }
+            } catch (StringIndexOutOfBoundsException ex) {
+                int move = miniMax(board, wishedDepth, Integer.MIN_VALUE + 100, Integer.MAX_VALUE - 100);
+            }
+        }
+        if(bestMove==null){
+            int move = miniMax(board, wishedDepth, Integer.MIN_VALUE + 100, Integer.MAX_VALUE - 100);
+        }
         return bestMove;
-//        if (move0 >= move1 && move0 > move2) {
-//            return bestMove.get(0);
-//        } else if (move1 > move2 && move1 > move0) {
-//            return bestMove.get(1);
-//        } else {
-//            return bestMove.get(2);
-//        }
     }
 
     private static int calculateCosts(ChessBoard board) {
@@ -46,18 +44,20 @@ public class ChessAi {
         double off = 1;
         for (int i = 0; i < pieces.size(); i++) {
             Piece p = pieces.get(i);
-            if(!p.equals(Piece.NO)){
+            if (!p.equals(Piece.NO)) {
                 ChessPiece[] chess = board.getBoard();
                 if (wishedDepth % 2 == 0) {
-                    costs += p.getAiValue()+((p.getHeatMap()[i]+1)*off);
-                }else{
-                    costs -= p.getAiValue()+((p.getHeatMap()[i]+1)*off);
+                    costs += p.getAiValue() + ((p.getHeatMap()[i] + 1) * off);
+                } else {
+                    costs -= p.getAiValue() + ((p.getHeatMap()[i] + 1) * off);
                 }
             }
         }
         return (int) (costs);
     }
+
     private static int eval = 0;
+
     public static int miniMax(ChessBoard board, int depth, int alpha, int beta) {
         if (depth == 0) {
             eval++;
@@ -66,29 +66,26 @@ public class ChessAi {
 
         int maxValue = alpha;
         List<Move> moves = board.getAllValidMoves(true);
-        if(moves.size() == 0){
+        if (moves.size() == 0) {
             return (board.isWhiteTurn()) ? -8000 : 8000;
         }
         moves = orderMoves(moves, board);
-        if (depth==wishedDepth) {
-            System.out.println(moves);
+        if (depth == wishedDepth) {
+            //System.out.println(moves);
 
         }
         for (Move move : moves) {
             ChessBoard nextMove = new ChessBoard(board);
             nextMove.makeMove(move, true);
             nextMove.changeTurn();
-            int cost = -miniMax(new ChessBoard(nextMove), depth - 1, beta*-1, -1*maxValue);
+            int cost = -miniMax(new ChessBoard(nextMove), depth - 1, beta * -1, -1 * maxValue);
 
             if (cost > maxValue) {
                 maxValue = cost;
                 if (depth == wishedDepth) {
-                    System.out.println(maxValue);
-                    System.out.println(move);
                     bestMove = move;
-                    System.out.println(beta);
                 }
-                if (maxValue >= beta){
+                if (maxValue >= beta) {
                     break;
                 }
             }
@@ -121,21 +118,21 @@ public class ChessAi {
         return alpha;
     }
 
-    public static List<Move> orderMoves(List<Move> moves, ChessBoard board){
+    public static List<Move> orderMoves(List<Move> moves, ChessBoard board) {
         for (Move move : moves) {
             Piece start = board.getBoard()[move.getStartPos()].getPiece();
             Piece target = board.getBoard()[move.getTargetPos()].getPiece();
             int score = 0;
-            if(!target.equals(Piece.NO)){
+            if (!target.equals(Piece.NO)) {
                 //System.out.println(Math.abs(target.getAiValue()) +" "+ Math.abs(start.getAiValue()));
                 score += Math.abs(target.getAiValue()) - Math.abs(start.getAiValue());
                 //System.out.println(move.toStringAi());
             }
             move.setAiScore(score);
         }
-        if(board.isWhiteTurn()){
-            moves.sort((o1, o2) -> -1*(o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
-        }else{
+        if (board.isWhiteTurn()) {
+            moves.sort((o1, o2) -> -1 * (o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
+        } else {
             moves.sort((o1, o2) -> (o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
         }
         //System.out.println(moves);
@@ -147,9 +144,9 @@ public class ChessAi {
         List<Integer> test = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             int val;
-            if(i%2==0){
+            if (i % 2 == 0) {
                 val = -i;
-            }else{
+            } else {
                 val = i;
             }
             test.add(val);

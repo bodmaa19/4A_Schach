@@ -189,13 +189,13 @@ public class Move {
                         isEmptyRight = false;
                     }
                 }
+            }
 
-                if (isEmptyLeft && rooks.get(0).getNumberOfMoves() == 0) {
-                    returnValue += 1;
-                }
-                if (isEmptyRight && rooks.get(1).getNumberOfMoves() == 0) {
-                    returnValue += 2;
-                }
+            if (isEmptyLeft && rooks.get(0).getNumberOfMoves() == 0) {
+                returnValue += 1;
+            }
+            if (isEmptyRight && rooks.get(1).getNumberOfMoves() == 0) {
+                returnValue += 2;
             }
         }
         return returnValue;
