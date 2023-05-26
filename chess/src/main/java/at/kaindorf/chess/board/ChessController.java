@@ -106,7 +106,6 @@ public class ChessController {
     @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(value = "/chess/move/single", method = RequestMethod.POST)
     public synchronized ChessReturn getAllValidMoves(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
-
         ChessBoard board = games.get(players);
         board.makeMove(new Move(startPos, targetPos), true);
         board.changeTurn();

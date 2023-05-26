@@ -17,13 +17,9 @@ export class BoardComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    console.log("game");
-    console.log(this.board)
-    await this.setBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-    this.drawBoard();
-    await this.setValidMoves(-1, -1);
-    this.dragPiece();
-    console.log(this.board);
+    this.setBoard(this.lastFen);
+    this.loginPlayer();
+    setTimeout(this.startSingle, 1000);
     this.countdownLabel1 = document.getElementById("clockPlayer1") as HTMLLabelElement;
     this.countdownLabel2 = document.getElementById("clockPlayer2") as HTMLLabelElement;
     this.updateCountdownLabel();
@@ -32,22 +28,136 @@ export class BoardComponent implements OnInit {
     this.startCountdown();
   }
 
-  SIZE: number = 500;
-  FIELD: number = this.SIZE / 8;
-  board: any[] = [];
-  boardX: any[] = [];
-  boardY: any[] = [];
-  WIDTH: number = 60;
-  offset: number = this.WIDTH / 2;
-  isDrag: boolean = false;
-  dragIndex: number = 0;
-  validMoves: any = [0];
-  color: boolean = true;
-  singleMode: boolean = false;
+  SIZE = 500;
+  FIELD = this.SIZE / 8;
+  board : any = [];
+  boardX : any = [];
+  boardY : any = [];
+  WIDTH = 60;
+  offset = this.WIDTH / 2;
+  isDrag = false;
+  dragIndex : any;
+  validMoves : any;
 
-  timeout: number = 0;
-  lastStart: number = -1;
-  lastTarget: number = -1;
+  timeout : any;
+  lastStart = -1;
+  lastTarget = -1;
+  isWhite = true;
+  multiColor = false;
+  lastFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+  isSingle = true;
+  turn : any;
+
+  startSingle = () => {
+    this.isSingle = true;
+    this.isWhite = true;
+    this.multiColor = true;
+    this.drawBoard();
+    this.dragPiece();
+    this.updateBoard();
+    this.touchPiece();
+
+    let url = 'http://localhost:8080/chess/start?isSinglePlayer=true';
+    let init = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.player)
+    };
+    fetch(url, init)
+      .then(response => {
+        return response.json()
+      })
+      .then(result => this.validMoves = result)
+      .catch(error => console.log('error', error));
+  }
+
+  startMulti = () => {
+    this.isSingle = false;
+    this.drawBoard();
+    this.dragPiece();
+    this.updateBoard();
+    this.touchPiece();
+    let url = 'http://localhost:8080/chess/start?isSinglePlayer=false';
+    let init = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.player)
+    };
+    fetch(url, init)
+      .then(response => {
+        return response.json()
+      })
+      .then(result => this.validMoves = result)
+      .catch(error => console.log('error', error));
+    this.waitForPlayer();
+  }
+
+  waitTimeout = 0;
+  waitForPlayer = async () => {
+    let url = 'http://localhost:8080/chess/wait';
+    let init = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(this.player)
+    };
+    let check = false;
+    await fetch(url, init)
+      .then(response => {
+        return response.json()
+      })
+      .then(result => {
+        check = true;
+        console.log(result)
+        this.validMoves = result["moves"];
+        this.multiColor = result["white"];
+        this.turn = result["whiteTurn"];
+        if (!this.multiColor) {
+          this.changeColor()
+        }
+        this.updateMulti();
+      })
+      .catch(error => check = false);
+    if (check) {
+      clearTimeout(this.waitTimeout);
+    } else {
+      this.waitTimeout = window.setTimeout(this.waitForPlayer, 1000);
+    }
+  }
+
+  updateMulti = async () => {
+    if (this.multiColor != this.turn) {
+      let url = 'http://localhost:8080/chess/multi/checkBoard?turn=' + this.turn;
+      let init = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.player)
+      };
+
+      await fetch(url, init)
+        .then(response => {
+          return response.json()
+        })
+        .then(result => {
+          console.log(result)
+          this.validMoves = result["moves"];
+          this.multiColor = result["white"];
+          this.turn = result["whiteTurn"];
+          this.lastStart = result["aiMove"].startPos;
+          this.lastTarget = result["aiMove"].targetPos;
+          this.setBoard(result["fenString"]);
+        })
+        .catch(error => console.log(error));
+    }
+    window.setTimeout(this.updateMulti, 1000);
+  }
 
   resetBoard = () => {
     for (let i = 0; i < 64; i++) {
@@ -55,28 +165,49 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  setBoard = async (fenString : string) : Promise<void> => {
+  // @ts-ignore
+  setBoard = async (fenString) => {
     await this.resetBoard();
     let idx = 0;
     let tokens = fenString.replace(/[/]/g, "").split("");
     clearTimeout(this.timeout);
-    for (let i = 0; i < tokens.length; i++) {
-      let char = tokens[i]
-      let num = parseInt(char);
-      if (isNaN(num)) {
-        let image;
-        if (char.charCodeAt(0) < 'a'.charCodeAt(0)) {
-          image = <HTMLImageElement>document.getElementById(char);
+    if (this.isWhite) {
+      for (let i = 0; i < tokens.length; i++) {
+        let char = tokens[i]
+        let num = parseInt(char);
+        if (isNaN(num)) {
+          let image;
+          if (char.charCodeAt(0) < 'a'.charCodeAt(0)) {
+            image = <HTMLImageElement>document.getElementById(char);
+          } else {
+            image = <HTMLImageElement>document.getElementById('b' + char);
+          }
+          this.board[idx] = image;
+          idx++;
         } else {
-          image = <HTMLImageElement>document.getElementById('b' + char);
+          idx += num;
         }
-        this.board[idx] = image;
-        idx++;
-      } else {
-        idx += num;
+      }
+    } else {
+      for (let i = tokens.length - 1; i >= 0; i--) {
+        let char = tokens[i]
+        let num = parseInt(char);
+        if (isNaN(num)) {
+          let image;
+          if (char.charCodeAt(0) < 'a'.charCodeAt(0)) {
+            image = <HTMLImageElement>document.getElementById(char);
+          } else {
+            image = <HTMLImageElement>document.getElementById('b' + char);
+          }
+          this.board[idx] = image;
+          idx++;
+        } else {
+          idx += num;
+        }
       }
     }
-    await this.updateBoard();
+    this.updateBoard();
+    this.updateBoard();
     if (this.isStarted)
     {
       this.stopCountdown();
@@ -87,10 +218,9 @@ export class BoardComponent implements OnInit {
   }
 
   drawBoard = () => {
-    console.log("draw")
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     // @ts-ignore
-    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+    let ctx : CanvasRenderingContext2D = canvas.getContext("2d");
     let image = <HTMLImageElement>document.getElementById("k");
     canvas.width = 500;
     canvas.height = 500;
@@ -107,19 +237,22 @@ export class BoardComponent implements OnInit {
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
       if (this.board[i] != '') {
+        ctx.save();
+        ctx.rotate(180 * Math.PI / 180);
         ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], this.WIDTH, this.WIDTH)
+        ctx.restore();
       }
     }
   }
 
   updateBoard = () => {
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
+    canvas.style.rotate = (this.isWhite) ? "0deg" : "180deg";
     // @ts-ignore
-    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+    let ctx : CanvasRenderingContext2D = canvas.getContext("2d");
     let image = <HTMLImageElement>document.getElementById("k");
     canvas.width = 500;
     canvas.height = 500;
-
     for (let i = 0; i < 64; i++) {
       let x = i % 8 * this.FIELD;
       let y = Math.floor(i / 8) * this.FIELD;
@@ -132,48 +265,53 @@ export class BoardComponent implements OnInit {
       } else {
         ctx.fillStyle = "#f0d9b5";
       }*/
-
       if (i % 2 + Math.floor(i / 8) % 2 == 1) {
-        ctx.fillStyle = "#825324";
+          ctx.fillStyle = "#825324";
       } else {
-        ctx.fillStyle = "#e3c6aa";
+          ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
         ctx.fillStyle = "#cdd26a";
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
-    if(this.color){
-      for (let i = 0; i < 64; i++) {
-        if(this.board[i] != ''){
-          ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+    for (let i = 0; i < 64; i++) {
+      if (this.board[i] != '') {
+        ctx.save();
+        if (!this.isWhite) {
+          ctx.translate(this.FIELD * 8, this.FIELD * 8);
+          ctx.rotate(180 * Math.PI / 180);
         }
+        ctx.drawImage(this.board[i], this.boardX[i], this.boardY[i], 60, 60)
+        ctx.restore();
       }
-    }else{
-      let cnt :number = 0;
-      for (let i = 63; i >= 0; i--) {
-        if(this.board[i] != ''){
-          ctx.drawImage(this.board[i], this.boardX[cnt], this.boardY[cnt], 60, 60)
-        }
-        cnt++;
+    }
+    if (this.isDrag) {
+      this.drawValidFields();
+      ctx.save();
+      if (!this.isWhite) {
+        ctx.translate(this.FIELD * 8, this.FIELD * 8);
+        ctx.rotate(180 * Math.PI / 180);
       }
+      ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
+      ctx.restore();
     }
 
-    if(this.isDrag){
-      this.drawValidFields();
-      if(this.color){
-        ctx.drawImage(this.board[this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
-      }else{
-        ctx.drawImage(this.board[63-this.dragIndex], this.boardX[this.dragIndex], this.boardY[this.dragIndex], 60, 60)
-      }
-    }
-    this.timeout = setTimeout(this.updateBoard, 1000/60)
+    this.timeout = setTimeout(this.updateBoard, 1000 / 60)
   }
 
   isValidMove = (dragIndex: number, idx: number) => {
-    for (let m in this.validMoves) {
-      if (this.validMoves[m].startPos == dragIndex && this.validMoves[m].targetPos == idx) {
-        return true;
+    if (this.isWhite) {
+      for (let m in this.validMoves) {
+        if (this.validMoves[m].startPos == dragIndex && this.validMoves[m].targetPos == idx) {
+          return true;
+        }
+      }
+    } else {
+      for (let m in this.validMoves) {
+        if (63 - this.validMoves[m].startPos == dragIndex && 63 - this.validMoves[m].targetPos == idx) {
+          return true;
+        }
       }
     }
 
@@ -185,7 +323,6 @@ export class BoardComponent implements OnInit {
     let ctx = canvas.getContext("2d");
 
     canvas.onmousedown = (evt) => {
-      console.log("mouse Down")
       let rect = canvas.getBoundingClientRect();
       for (let i = 0; i < 64; i++) {
         let x = i % 8 * this.FIELD;
@@ -193,10 +330,13 @@ export class BoardComponent implements OnInit {
         let mx = evt.clientX - rect.x;
         let my = evt.clientY - rect.y;
         if ((mx > x && mx < x + this.FIELD) && (my > y && my < y + this.FIELD) && this.board[i] != '') {
-          this.boardX[i] = mx - this.offset;
-          this.boardY[i] = my - this.offset;
-          this.isDrag = true;
-          this.dragIndex = i;
+          if ((this.multiColor && this.board[i].getAttribute("id").length == 1)
+            || (!this.multiColor && this.board[i].getAttribute("id").length == 2) && this.multiColor == this.isWhite) {
+            this.boardX[i] = mx - this.offset;
+            this.boardY[i] = my - this.offset;
+            this.isDrag = true;
+            this.dragIndex = i;
+          }
         }
       }
     }
@@ -223,7 +363,7 @@ export class BoardComponent implements OnInit {
           this.lastStart = this.dragIndex;
           this.board[idx] = this.board[this.dragIndex];
           this.board[this.dragIndex] = '';
-          this.setValidMoves(this.dragIndex, idx);
+          this.makeMove(this.dragIndex, idx);
         }
         this.boardX[this.dragIndex] = this.dragIndex % 8 * this.FIELD;
         this.boardY[this.dragIndex] = Math.floor(this.dragIndex / 8) * this.FIELD;
@@ -237,7 +377,70 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  getFieldIndex = (x : number, y : number) => {
+  touchPiece = () => {
+    let canvas = <HTMLCanvasElement>document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
+    canvas.ontouchstart = (evt) => {
+      let rect = canvas.getBoundingClientRect();
+      for (let i = 0; i < 64; i++) {
+        let x = i % 8 * this.FIELD;
+        let y = Math.floor(i / 8) * this.FIELD;
+        let mx = evt.touches[0].clientX - rect.x;
+        let my = evt.touches[0].clientY - rect.y;
+        if ((mx > x && mx < x + this.FIELD) && (my > y && my < y + this.FIELD) && this.board[i] != '') {
+          if ((this.multiColor && this.board[i].getAttribute("id").length == 1)
+            || (!this.multiColor && this.board[i].getAttribute("id").length == 2) && this.multiColor == this.isWhite) {
+            this.boardX[i] = mx - this.offset;
+            this.boardY[i] = my - this.offset;
+            this.isDrag = true;
+            this.dragIndex = i;
+          }
+        }
+      }
+    }
+
+    canvas.ontouchmove = (evt) => {
+      let rect = canvas.getBoundingClientRect();
+      if (this.isDrag) {
+        this.boardX[this.dragIndex] = evt.touches[0].clientX - rect.x - this.offset;
+        this.boardY[this.dragIndex] = evt.touches[0].clientY - rect.y - this.offset;
+      }
+    }
+
+    canvas.ontouchend = (evt) => {
+
+      if (this.isDrag) {
+        let rect = canvas.getBoundingClientRect();
+        this.isDrag = false;
+        let mx = evt.touches[0].clientX - rect.x;
+        let my = evt.touches[0].clientY - rect.y;
+        let idx = this.getFieldIndex(this.boardX[this.dragIndex], this.boardY[this.dragIndex]);
+        // GET
+
+        if (idx != this.dragIndex && this.isValidMove(this.dragIndex, idx)) {
+          this.lastTarget = idx;
+          this.lastStart = this.dragIndex;
+          this.board[idx] = this.board[this.dragIndex];
+          this.board[this.dragIndex] = '';
+          if (this.isSingle) {
+            this.makeMove(this.dragIndex, idx);
+          }
+        }
+        this.boardX[this.dragIndex] = this.dragIndex % 8 * this.FIELD;
+        this.boardY[this.dragIndex] = Math.floor(this.dragIndex / 8) * this.FIELD;
+      }
+    }
+
+    canvas.ontouchcancel = () => {
+      this.isDrag = false;
+      this.boardX[this.dragIndex] = this.dragIndex % 8 * this.FIELD;
+      this.boardY[this.dragIndex] = Math.floor(this.dragIndex / 8) * this.FIELD;
+    }
+  }
+
+
+  getFieldIndex = (x:any, y:any) => {
     return Math.floor(x / this.FIELD) + Math.floor(y / this.FIELD) * 8;
   }
 
@@ -276,54 +479,59 @@ export class BoardComponent implements OnInit {
   }
 
   //change
-  setValidMoves = (start : any, target : any) => {
-    this.validMoves = [0];
+  makeMove = (start : any, target : any) => {
+    this.validMoves = 0;
     let init: object;
     let url: string;
-    if (start == -1 && target == -1) {
-      url = 'http://localhost:8080/chess/start';
-      init = {
-        method: 'POST',
-        body: this.getFenString()
-      };
-      fetch(url, init)
-        .then(response => response.json())
-        .then(result => this.validMoves = result)
-        .catch(error => console.log('error', error));
+    let startPos = (this.isWhite) ? start : 63 - start
+    let targetPos = (this.isWhite) ? target : 63 - target
+
+    if (this.isSingle) {
+      url = 'http://localhost:8080/chess/move/single?startPos=' + startPos + '&targetPos=' + targetPos;
     } else {
-      url = 'http://localhost:8080/chess/move';
-      let move: object = {
-        startPos: start,
-        targetPos: target
-      };
-      init = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(move)
-      };
-      fetch(url, init)
-        .then(response => response.json())
-        .then(json => {
-          this.validMoves = json["moves"];
-          this.lastStart = json["aiMove"].startPos;
-          this.lastTarget = json["aiMove"].targetPos;
-          this.setBoard(json["fenString"]);
-        })
-        .catch(error => console.log('error', error));
-      this.stopCountdown();
-      this.increaseCountdown();
-      this.isPlayer = false;
-      if (this.isStarted == false)
-      {
-        this.startCountdown();
-        this.isStarted = true;
-      }
-      else
-      {
-        this.resumeCountdown();
-      }
+      url = 'http://localhost:8080/chess/move/multi?startPos=' + startPos + '&targetPos=' + targetPos;
+    }
+
+    let move: object = {
+      startPos: (this.isWhite) ? start : 63 - start,
+      targetPos: (this.isWhite) ? target : 63 - target
+    };
+    let players = `[{"playerId":${this.player.playerId}, "name":"${this.player.name}"}]`
+
+    console.log(players)
+    init = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: players
+    };
+    fetch(url, init)
+      .then(response => {
+        return response.json()
+      })
+      .then(json => {
+        console.log(json["fenString"])
+        this.validMoves = json["moves"];
+        this.lastStart = json["aiMove"].startPos;
+        this.lastTarget = json["aiMove"].targetPos;
+        this.turn = json["whiteTurn"];
+        this.lastFen = json["fenString"];
+        console.log(this.lastFen)
+        this.setBoard(json["fenString"]);
+      })
+      .catch(error => console.log('error', error));
+    this.stopCountdown();
+    this.increaseCountdown();
+    this.isPlayer = false;
+    if (this.isStarted == false)
+    {
+      this.startCountdown();
+      this.isStarted = true;
+    }
+    else
+    {
+      this.resumeCountdown();
     }
   }
 
@@ -331,16 +539,16 @@ export class BoardComponent implements OnInit {
     let canvas = <HTMLCanvasElement>document.getElementById("canvas");
     let r = 15 / 2;
     // @ts-ignore
-    let ctx: CanvasRenderingContext2D = canvas.getContext("2d");
+    let ctx : CanvasRenderingContext2D = canvas.getContext("2d");
     for (let m in this.validMoves) {
       //console.log(validMoves[m].startPos + " " + dragIndex)
-      if (this.validMoves[m].startPos == this.dragIndex) {
+      let clickedIdx = (this.isWhite) ? this.dragIndex : 63 - this.dragIndex;
+      if (this.validMoves[m].startPos == clickedIdx) {
         ctx.beginPath();
         let idx = this.validMoves[m].targetPos;
         let x = idx % 8 * this.FIELD + (this.FIELD / 2);
         let y = Math.floor(idx / 8) * this.FIELD + (this.FIELD / 2);
-        if (this.board[idx] == '') {
-          //ctx.fillStyle = "#6e6e42";
+        if (this.board[(this.isWhite) ? idx : 63 - idx] == '') {
           ctx.fillStyle = "#00AA00";
         } else {
           ctx.fillStyle = "#AA0000";
@@ -352,6 +560,37 @@ export class BoardComponent implements OnInit {
         ctx.closePath();
       }
     }
+  }
+
+  changeColor = async () => {
+    this.isWhite = !this.isWhite;
+    console.log(this.isWhite)
+    console.log(this.lastFen)
+    this.setBoard(this.lastFen);
+    /*for(let key in validMoves){
+        validMoves[key].startPos = 63 - validMoves[key].startPos;
+        validMoves[key].targetPos = 63 - validMoves[key].targetPos;
+        console.log(key);
+    }*/
+  }
+
+  player : any;
+  loginPlayer = () => {
+    let url = "http://localhost:8080/chess/login";
+    let init = {
+      method: 'POST',
+      body: "Maxi"
+    };
+    fetch(url, init)
+      .then(response => {
+        return response.json()
+      })
+      .then(json => {
+        this.player = json;
+        console.log(json)
+        let text = "Hallo " + this.player["name"] + "! (id: " + this.player["playerId"] + ")"
+      })
+      .catch(error => console.log('error', error));
   }
 
   firstNumberOfPieces: number[] = [];
@@ -376,14 +615,16 @@ export class BoardComponent implements OnInit {
       for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length; j++) {
         //console.log(images[i])
         if (id.length == 2) {
-          blackPieces += images[i].outerHTML;
+          blackPieces += `<img style="height: 80px; width: auto" src="assets/images/${images[i].getAttribute("id").toUpperCase()}.png"></img>`;
         } else {
-          whitePieces += images[i].outerHTML;
+          whitePieces += `<img style="height: 80px; width: auto" src="assets/images/W${images[i].getAttribute("id")}.png"></img>`;
         }
       }
     }
-    console.log(blackPieces);
+    /*console.log(blackPieces);
     console.log(whitePieces);
+    console.log(document.getElementsByTagName("div"));*/
+
     console.log(document.getElementsByTagName("div"));
 
     // @ts-ignore

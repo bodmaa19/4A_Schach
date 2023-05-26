@@ -2,6 +2,7 @@
 {
   display: block;
   margin: auto;
+  cursor: pointer;
 }
 .piece
 {

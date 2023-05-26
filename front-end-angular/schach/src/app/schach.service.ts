@@ -8,7 +8,7 @@ import {animate} from "@angular/animations";
 export class SchachService implements OnInit, CanActivate {
   links : String[] = [
     "game",
-    "multiPlayerMode"
+    "game"
   ];
 
   modes : String[] = [

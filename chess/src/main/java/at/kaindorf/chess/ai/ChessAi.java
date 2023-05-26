@@ -72,7 +72,6 @@ public class ChessAi {
         moves = orderMoves(moves, board);
         if (depth == wishedDepth) {
             //System.out.println(moves);
-
         }
         for (Move move : moves) {
             ChessBoard nextMove = new ChessBoard(board);
