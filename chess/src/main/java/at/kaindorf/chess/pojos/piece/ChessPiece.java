@@ -1,4 +1,4 @@
-package at.kaindorf.chess.pojos;
+package at.kaindorf.chess.pojos.piece;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

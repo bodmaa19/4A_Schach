@@ -1,9 +1,8 @@
 package at.kaindorf.chess.board;
 
 import at.kaindorf.chess.ai.ChessAi;
-import at.kaindorf.chess.pojos.ChessInput;
 import at.kaindorf.chess.pojos.ChessReturn;
-import at.kaindorf.chess.pojos.Move;
+import at.kaindorf.chess.pojos.moves.Move;
 import at.kaindorf.chess.pojos.Player;
 import org.springframework.web.bind.annotation.*;
 
@@ -81,7 +80,6 @@ public class ChessController {
             int idx = players.indexOf(player);
             ChessBoard board = games.get(players);
             if (turn != board.isWhiteTurn()) {
-                System.out.println(board.getLastMove());
                 ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
                         board.getLastMove(), (idx == 0) ? true : false, board.isWhiteTurn());
                 return chessReturn;

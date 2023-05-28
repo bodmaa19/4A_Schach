@@ -1,4 +1,4 @@
-package at.kaindorf.chess.pojos;
+package at.kaindorf.chess.pojos.piece;
 
 public enum Piece {
     WK("K", new int[]{1, -1, 8, -8, 9, -9, 7, -7}, 'w', -4000, new int[]{
@@ -149,8 +149,40 @@ public enum Piece {
         return heatMap;
     }
 
-    public static String getTypeWithoutColor(Piece p) {
-        return p.fen.toLowerCase();
+    public PieceType getPieceType() {
+        switch(fen.toLowerCase()) {
+            case "p": return PieceType.Pawn;
+            case "r": return PieceType.Rook;
+            case "n": return PieceType.Knight;
+            case "b": return PieceType.Bishop;
+            case "q": return PieceType.Queen;
+            case "k": return PieceType.King;
+            default: return PieceType.NoPiece;
+        }
+    }
+
+    public boolean isPieceType(PieceType type) {
+        return getPieceType() == type;
+    }
+
+    public PieceColor getPieceColor() {
+        return color == 'w' ? PieceColor.White : PieceColor.Black;
+    }
+
+    public boolean isWhitePiece() {
+        return color == 'w';
+    }
+
+    public static Piece create(PieceType type, PieceColor color) {
+        switch(type) {
+            case Pawn: return color == PieceColor.White ? Piece.WP : Piece.BP;
+            case Rook: return color == PieceColor.White ? Piece.WR : Piece.BR;
+            case Knight: return color == PieceColor.White ? Piece.WN : Piece.BN;
+            case Bishop: return color == PieceColor.White ? Piece.WB : Piece.BB;
+            case King: return color == PieceColor.White ? Piece.WK : Piece.BK;
+            case Queen: return color == PieceColor.White ? Piece.WQ : Piece.BQ;
+            default: return Piece.NO;
+        }
     }
 
     Piece(String fen, int[] moves, char color, int aiValue, int[] heatMap) {

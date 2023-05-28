@@ -1,4 +1,4 @@
-package at.kaindorf.chess.pojos;
+package at.kaindorf.chess.pojos.moves;
 
 //Max ToDo: Make all getValidMoves to
 // - Include Board vs idxBoard
@@ -6,6 +6,9 @@ package at.kaindorf.chess.pojos;
 // - Rename p --> specific piece
 
 import at.kaindorf.chess.board.ChessBoard;
+import at.kaindorf.chess.pojos.piece.ChessPiece;
+import at.kaindorf.chess.pojos.piece.Piece;
+import at.kaindorf.chess.pojos.piece.PieceType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,7 +22,6 @@ public class Move {
     public static List<Move> getValidQueenMove(ChessPiece p, int idx, ChessPiece[] board) {
         List<Move> moves = new ArrayList<>();
         moves.addAll(getValidBishopMove(p, idx, board));
-
         moves.addAll(getValidRookMove(p, idx, board));
         return moves;
     }
@@ -72,7 +74,7 @@ public class Move {
         }
         List<Move> moves = new ArrayList<>();
         int anz = 0;
-        char currentColor = getColorOfField(idx);
+        char currentColor;
 
         for (int i = 0; i < moveArr.length; i++) {
             if (idx + moveArr[i] < board.length && idx + moveArr[i] >= 0) {
@@ -131,38 +133,41 @@ public class Move {
         return c1 != c2 && c2 != ' ';
     }
 
-    public static boolean isDifferentColor(Piece p1, Piece p2) { return p1.color != p2.color; }
+    public static boolean isDifferentColor(Piece p1, Piece p2) { return p1.getColor() != p2.getColor(); }
 
-    public static List<Move> getValidPawnMove(ChessPiece piece, int startingIdx, ChessBoard board) {
+    public static List<Move> getValidPawnMove(ChessPiece piece, int startPos, ChessBoard board) {
         ChessPiece[] idxBoard = board.getBoard();
-
         Piece pawn = piece.getPiece();
         int[] moveArr = pawn.getMoves();
+
+        int targetPos;
         List<Move> moves = new ArrayList<>();
         // Normal pawn move
-            if (startingIdx + moveArr[0] >= 0 && startingIdx + moveArr[0] < idxBoard.length) {
-                if (idxBoard[startingIdx + moveArr[0]].getPiece().equals(Piece.NO)) {
-                    moves.add(new Move(startingIdx, startingIdx + moveArr[0]));
-                }
+            targetPos = startPos + moveArr[0];
+            if (targetPos >= 0 && targetPos < idxBoard.length && idxBoard[targetPos].getPiece() == Piece.NO) {
+                moves.add(getNormaleOrPromotingPawnMove(startPos, targetPos));
             }
         //
 
         // Fist "double" pawn move
-        if (startingIdx + moveArr[1] >= 0 && startingIdx + moveArr[1] < idxBoard.length) {
-            if (idxBoard[startingIdx + moveArr[1]].getPiece().equals(Piece.NO) && piece.getNumberOfMoves() == 0 && idxBoard[startingIdx + moveArr[0]].getPiece().equals(Piece.NO)) {
-                moves.add(new Move(startingIdx, startingIdx + moveArr[1]));
+        targetPos = startPos + moveArr[1];
+        if (targetPos >= 0 && targetPos < idxBoard.length) {
+            if (idxBoard[targetPos].getPiece().equals(Piece.NO) &&
+                idxBoard[startPos + moveArr[0]].getPiece().equals(Piece.NO) &&
+                piece.getNumberOfMoves() == 0) {
+                moves.add(new Move(startPos, targetPos));
             }
         }
 
         // Capturing a piece
             // normal
-                int pRow = startingIdx / 8;
+                int pRow = startPos / 8;
                 for (int i = 2; i < moveArr.length; i++) {
-                    if (startingIdx + moveArr[i] >= 0 && startingIdx + moveArr[i] < idxBoard.length) {
-                        if (isDifferentColor(pawn.getColor(), idxBoard[startingIdx + moveArr[i]].getPiece().getColor())
-                                && (startingIdx + moveArr[i]) / 8 != pRow + ((pawn.getColor() == 'w') ? -2 : 2) &&
-                                getColorOfField(startingIdx) == getColorOfField(startingIdx + moveArr[i])) {
-                            moves.add(new Move(startingIdx, startingIdx + moveArr[i]));
+                    if (startPos + moveArr[i] >= 0 && startPos + moveArr[i] < idxBoard.length) {
+                        if (isDifferentColor(pawn.getColor(), idxBoard[startPos + moveArr[i]].getPiece().getColor())
+                                && (startPos + moveArr[i]) / 8 != pRow + (pawn.isWhitePiece() ? -2 : 2) &&
+                                getColorOfField(startPos) == getColorOfField(startPos + moveArr[i])) {
+                            moves.add(getNormaleOrPromotingPawnMove(startPos, startPos + moveArr[i]));
                         }
                     }
                 }
@@ -174,28 +179,39 @@ public class Move {
 
                 if(previousMove != null) {
                     Piece lastMovedPiece = idxBoard[previousMove.targetPos].getPiece();
-                    System.out.println("New Move: " + lastMovedPiece.fen);
-                    wasPreviousMovePawn = lastMovedPiece == Piece.WP || lastMovedPiece == Piece.BP;
+                    wasPreviousMovePawn = lastMovedPiece.isPieceType(PieceType.Pawn);
                 }
 
                 if(wasPreviousMovePawn)
                 {
-                    if(previousMove.targetPos == startingIdx + 1) {
-                        int diffToTarget = (pawn.getColor() == 'w') ? -7 : 9;
-                        int diffToCapture = (pawn.getColor() == 'w') ? 8 : -8;
-                        moves.add(new EnPassantMove(startingIdx, startingIdx + diffToTarget, startingIdx + diffToTarget + diffToCapture));
+                    if(previousMove.targetPos == startPos + 1) {
+                        int diffToTarget = pawn.isWhitePiece() ? -7 : 9;
+                        int diffToCapture = pawn.isWhitePiece() ? 8 : -8;
+                        moves.add(new EnPassantMove(startPos, startPos + diffToTarget, startPos + diffToTarget + diffToCapture));
                     }
 
-                    if(previousMove.targetPos == startingIdx - 1) {
-                        int diffToTarget = (pawn.getColor() == 'w') ? -9 : 7;
-                        int diffToCapture = (pawn.getColor() == 'w') ? 8 : -8;
-                        moves.add(new EnPassantMove(startingIdx, startingIdx + diffToTarget, startingIdx + diffToTarget + diffToCapture));
+                    if(previousMove.targetPos == startPos - 1) {
+                        int diffToTarget = pawn.isWhitePiece() ? -9 : 7;
+                        int diffToCapture = pawn.isWhitePiece() ? 8 : -8;
+                        moves.add(new EnPassantMove(startPos, startPos + diffToTarget, startPos + diffToTarget + diffToCapture));
                     }
                 }
             //
         //
 
         return moves;
+    }
+
+    private static Move getNormaleOrPromotingPawnMove(int startingPos, int targetPos) {
+        Move move;
+
+        if(targetPos < 8 || targetPos > 55) {
+            move = new PromotionMove(startingPos, targetPos);
+        } else {
+            move = new Move(startingPos, targetPos);
+        }
+
+        return move;
     }
 
     public static int isCastling(ChessBoard board) {

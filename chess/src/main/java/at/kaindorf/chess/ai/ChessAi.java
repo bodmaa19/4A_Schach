@@ -2,11 +2,10 @@ package at.kaindorf.chess.ai;
 
 import at.kaindorf.chess.ai.book.BookIO;
 import at.kaindorf.chess.board.ChessBoard;
-import at.kaindorf.chess.pojos.ChessPiece;
-import at.kaindorf.chess.pojos.Move;
-import at.kaindorf.chess.pojos.Piece;
+import at.kaindorf.chess.pojos.piece.ChessPiece;
+import at.kaindorf.chess.pojos.moves.Move;
+import at.kaindorf.chess.pojos.piece.Piece;
 
-import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
 

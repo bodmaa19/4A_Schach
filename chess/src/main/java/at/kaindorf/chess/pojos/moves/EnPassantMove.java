@@ -1,4 +1,4 @@
-package at.kaindorf.chess.pojos;
+package at.kaindorf.chess.pojos.moves;
 
 public class EnPassantMove extends Move {
 

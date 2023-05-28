@@ -1,6 +1,8 @@
-package at.kaindorf.chess.pojos;
+package at.kaindorf.chess.pojos.moves;
 
 import at.kaindorf.chess.board.ChessBoard;
+import at.kaindorf.chess.pojos.piece.ChessPiece;
+import at.kaindorf.chess.pojos.piece.Piece;
 import lombok.*;
 
 import java.util.Arrays;
@@ -9,11 +11,11 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class Castling extends Move {
+public class CastlingMove extends Move {
     private int rookStart;
     private int rookTarget;
 
-    public Castling(int startPos, int targetPos, int rookStart, int rookTarget) {
+    public CastlingMove(int startPos, int targetPos, int rookStart, int rookTarget) {
         super(startPos, targetPos);
         this.rookStart = rookStart;
         this.rookTarget = rookTarget;

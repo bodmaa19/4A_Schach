@@ -1,5 +1,6 @@
 package at.kaindorf.chess.pojos;
 
+import at.kaindorf.chess.pojos.moves.Move;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
