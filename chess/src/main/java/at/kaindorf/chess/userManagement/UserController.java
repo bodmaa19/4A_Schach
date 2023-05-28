@@ -1,7 +1,6 @@
 package at.kaindorf.chess.userManagement;
 
 import at.kaindorf.chess.database.UserMockDatabase;
-import at.kaindorf.chess.jwt.JWTNeeded;
 import at.kaindorf.chess.jwt.JWTUtil;
 import at.kaindorf.chess.pojos.User;
 import at.kaindorf.chess.pojos.UserData;

@@ -206,7 +206,7 @@ public class Move {
         Move move;
 
         if(targetPos < 8 || targetPos > 55) {
-            move = new PromotionMove(startingPos, targetPos);
+            move = new PromotionMove(startingPos, targetPos, PieceType.Queen);
         } else {
             move = new Move(startingPos, targetPos);
         }

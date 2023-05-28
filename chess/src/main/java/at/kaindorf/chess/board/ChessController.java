@@ -4,6 +4,9 @@ import at.kaindorf.chess.ai.ChessAi;
 import at.kaindorf.chess.pojos.ChessReturn;
 import at.kaindorf.chess.pojos.moves.Move;
 import at.kaindorf.chess.pojos.Player;
+import at.kaindorf.chess.pojos.moves.PromotionMove;
+import at.kaindorf.chess.pojos.piece.PieceType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -14,18 +17,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChessController {
     private Map<List<Player>, ChessBoard> games = new HashMap<>();
     private List<Player> waitingList = new CopyOnWriteArrayList<>();
-    private List<Player> playerList = new ArrayList<>();
+    private List<Player> allPlayersList = new ArrayList<>();
 
     // Adding a user
     @RequestMapping(value = "/chess/login", method = RequestMethod.POST)
     public Player login(@RequestBody String name) {
         int nextId = 1;
-        if (!playerList.isEmpty()) {
-            nextId = playerList.stream().mapToInt(Player::getPlayerId).max().getAsInt() + 1;
+        if (!allPlayersList.isEmpty()) {
+            nextId = allPlayersList.stream().mapToInt(Player::getPlayerId).max().getAsInt() + 1;
         }
 
         Player player = new Player(nextId, name);
-        playerList.add(player);
+        allPlayersList.add(player);
         return player;
     }
 
@@ -91,21 +94,25 @@ public class ChessController {
 
     // Endpoint for playing-client (active player) to make a valid move (move is 100% valid)
     @RequestMapping(value = "/chess/move/multi", method = RequestMethod.POST)
-    public synchronized ChessReturn makeValidMoveMulti(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
+    public synchronized ResponseEntity<ChessReturn> makeValidMoveMulti(@RequestParam int startPos, @RequestParam int targetPos, @RequestParam(required = false) PieceType desiredPiece, @RequestBody List<Player> players) {
         Optional<List<Player>> optionalPlayers = games.keySet().stream().filter(l -> l.contains(players.get(0))).findFirst();
         if (optionalPlayers.isPresent()) {
-            List<Player> playerList = optionalPlayers.get();
-            int idx = playerList.indexOf(players.get(0));
-            ChessBoard board = games.get(playerList);
+            List<Player> twoPlayerLobby = optionalPlayers.get();
+            ChessBoard board = games.get(twoPlayerLobby);
+            boolean isSendingPlayerWhite = twoPlayerLobby.indexOf(players.get(0)) == 0;
 
             List<Move> validMoves = board.getAllValidMoves(true);
             Move move = validMoves.stream().filter(m -> m.getStartPos() == startPos && m.getTargetPos() == targetPos).findFirst().get();
 
+            if(move instanceof PromotionMove && desiredPiece != null) {
+                 ((PromotionMove) move).setDesiredType(desiredPiece);
+            }
+
             board.makeMove(move, true);
             board.changeTurn();
             ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
-                    move, (idx == 0) ? true : false, board.isWhiteTurn());
-            return chessReturn;
+                    move, isSendingPlayerWhite, board.isWhiteTurn());
+            return ResponseEntity.ok(chessReturn);
         }
         return null;
     }

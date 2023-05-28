@@ -5,6 +5,7 @@ import at.kaindorf.chess.pojos.moves.Move;
 import at.kaindorf.chess.pojos.moves.PromotionMove;
 import at.kaindorf.chess.pojos.piece.ChessPiece;
 import at.kaindorf.chess.pojos.piece.Piece;
+import at.kaindorf.chess.pojos.piece.PieceColor;
 import at.kaindorf.chess.pojos.piece.PieceType;
 
 import java.util.ArrayList;
@@ -197,7 +198,11 @@ public class ChessBoard {
 
         // Promotion
             if(move instanceof PromotionMove) {
-                board[targetPos] = new ChessPiece(Piece.create(PieceType.Queen, movedPiece.getPieceColor()), 0);
+                PieceColor color = movedPiece.getPieceColor();
+                PieceType type = ((PromotionMove) move).getDesiredType();
+                Piece promotionPiece = Piece.create(type, color);
+
+                board[targetPos] = new ChessPiece(promotionPiece, 0);
             }
 
         // Rochade
