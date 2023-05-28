@@ -11,7 +11,7 @@ public class ChessPiece {
     Piece piece;
     int numberOfMoves = 0;
 
-    public void move(){
+    public void increaseMoveCounter(){
         numberOfMoves++;
     }
 }

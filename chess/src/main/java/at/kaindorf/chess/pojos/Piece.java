@@ -149,6 +149,10 @@ public enum Piece {
         return heatMap;
     }
 
+    public static String getTypeWithoutColor(Piece p) {
+        return p.fen.toLowerCase();
+    }
+
     Piece(String fen, int[] moves, char color, int aiValue, int[] heatMap) {
         this.fen = fen;
         this.moves = moves;

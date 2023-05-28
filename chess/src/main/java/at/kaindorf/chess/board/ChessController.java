@@ -17,6 +17,7 @@ public class ChessController {
     private List<Player> waitingList = new CopyOnWriteArrayList<>();
     private List<Player> playerList = new ArrayList<>();
 
+    // Adding a user
     @RequestMapping(value = "/chess/login", method = RequestMethod.POST)
     public Player login(@RequestBody String name) {
         int nextId = 1;
@@ -29,6 +30,7 @@ public class ChessController {
         return player;
     }
 
+    // Game is created (and started on the server) and users are removed from the queue
     @RequestMapping(value = "/chess/start", method = RequestMethod.POST)
     public synchronized List<Move> startGame(@RequestParam boolean isSinglePlayer, @RequestBody Player player) {
         if (isSinglePlayer) {
@@ -53,23 +55,7 @@ public class ChessController {
         return null;
     }
 
-    @RequestMapping(value = "/chess/multi/checkBoard", method = RequestMethod.POST)
-    public synchronized ChessReturn checkBoard(@RequestParam boolean turn, @RequestBody Player player) {
-        Optional<List<Player>> optionalPlayers = games.keySet().stream().filter(l -> l.contains(player)).findFirst();
-        if (optionalPlayers.isPresent()) {
-            List<Player> players = optionalPlayers.get();
-            int idx = players.indexOf(player);
-            ChessBoard board = games.get(players);
-            if (turn != board.isWhiteTurn()) {
-                System.out.println(board.getLastMove());
-                ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
-                        board.getLastMove(), (idx == 0) ? true : false, board.isWhiteTurn());
-                return chessReturn;
-            }
-        }
-        return null;
-    }
-
+    // Endpoint for the clients to check if the game has started on the server
     @RequestMapping(value = "/chess/wait", method = RequestMethod.POST)
     public synchronized ChessReturn waitingForPlayers(@RequestBody Player player) {
         Optional<List<Player>> optionalPlayers = games.keySet().stream().filter(l -> l.contains(player)).findFirst();
@@ -86,14 +72,37 @@ public class ChessController {
         return null;
     }
 
+    // Endpoint for the waiting-client (not active player) to check if there is a new move
+    @RequestMapping(value = "/chess/multi/checkBoard", method = RequestMethod.POST)
+    public synchronized ChessReturn checkIfBoardChanged(@RequestParam boolean turn, @RequestBody Player player) {
+        Optional<List<Player>> optionalPlayers = games.keySet().stream().filter(l -> l.contains(player)).findFirst();
+        if (optionalPlayers.isPresent()) {
+            List<Player> players = optionalPlayers.get();
+            int idx = players.indexOf(player);
+            ChessBoard board = games.get(players);
+            if (turn != board.isWhiteTurn()) {
+                System.out.println(board.getLastMove());
+                ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
+                        board.getLastMove(), (idx == 0) ? true : false, board.isWhiteTurn());
+                return chessReturn;
+            }
+        }
+
+        return null;
+    }
+
+    // Endpoint for playing-client (active player) to make a valid move (move is 100% valid)
     @RequestMapping(value = "/chess/move/multi", method = RequestMethod.POST)
-    public synchronized ChessReturn getAllValidMovesMulti(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
+    public synchronized ChessReturn makeValidMoveMulti(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
         Optional<List<Player>> optionalPlayers = games.keySet().stream().filter(l -> l.contains(players.get(0))).findFirst();
         if (optionalPlayers.isPresent()) {
             List<Player> playerList = optionalPlayers.get();
             int idx = playerList.indexOf(players.get(0));
             ChessBoard board = games.get(playerList);
-            Move move = new Move(startPos, targetPos);
+
+            List<Move> validMoves = board.getAllValidMoves(true);
+            Move move = validMoves.stream().filter(m -> m.getStartPos() == startPos && m.getTargetPos() == targetPos).findFirst().get();
+
             board.makeMove(move, true);
             board.changeTurn();
             ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
@@ -105,15 +114,15 @@ public class ChessController {
 
     @CrossOrigin(origins = "http://localhost:4200")
     @RequestMapping(value = "/chess/move/single", method = RequestMethod.POST)
-    public synchronized ChessReturn getAllValidMoves(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
+    public synchronized ChessReturn getAllValidMovesSingle(@RequestParam int startPos, @RequestParam int targetPos, @RequestBody List<Player> players) {
+
         ChessBoard board = games.get(players);
         board.makeMove(new Move(startPos, targetPos), true);
         board.changeTurn();
         Move aiMove = ChessAi.calculateBestMove(new ChessBoard(board, false));
-        //System.out.println(board.generateFenString());
         board.makeMove(aiMove, true);
         board.changeTurn();
-        //Move aiMove = new Move(-1 , -1);
+
         return new ChessReturn(board.generateFenString(), board.getAllValidMoves(true), aiMove, true, board.isWhiteTurn());
     }
 }
