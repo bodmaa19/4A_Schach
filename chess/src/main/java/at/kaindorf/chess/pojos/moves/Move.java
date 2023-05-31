@@ -112,6 +112,10 @@ public class Move {
         return (((idx / 8) + ((idx % 8) % 2)) % 2 == 0) ? 'w' : 'b';
     }
 
+    private static boolean isColorOfFieldDifferent(int idx1, int idx2) {
+        return isDifferentColor(getColorOfField(idx1), getColorOfField(idx2));
+    }
+
     public static List<Move> getValidKnightMove(ChessPiece piece, int idx, ChessPiece[] board) {
         Piece p = piece.getPiece();
         int[] moveArr = p.getMoves();
@@ -175,14 +179,18 @@ public class Move {
 
             // Capturing "en passante":
                 Move previousMove = board.getPreviousMove();
-                boolean wasPreviousMovePawn = false;
+                boolean enPassentPossible = false;
 
                 if(previousMove != null) {
-                    Piece lastMovedPiece = idxBoard[previousMove.targetPos].getPiece();
-                    wasPreviousMovePawn = lastMovedPiece.isPieceType(PieceType.Pawn);
+                    ChessPiece chessPiece = idxBoard[previousMove.targetPos];
+                    boolean lastMovePawn = chessPiece.getPiece().isPieceType(PieceType.Pawn);
+                    boolean firstMove = chessPiece.getNumberOfMoves() == 1;
+                    boolean forthRow = previousMove.targetPos >= 24 && previousMove.targetPos <= 39;
+                    boolean edgeCase = isColorOfFieldDifferent(previousMove.targetPos, startPos);
+                    enPassentPossible = lastMovePawn && firstMove && forthRow && edgeCase;
                 }
 
-                if(wasPreviousMovePawn)
+                if(enPassentPossible)
                 {
                     if(previousMove.targetPos == startPos + 1) {
                         int diffToTarget = pawn.isWhitePiece() ? -7 : 9;
