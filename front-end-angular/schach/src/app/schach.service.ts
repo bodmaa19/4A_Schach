@@ -119,7 +119,13 @@ export class SchachService implements OnInit, CanActivate {
     }
     else
     {
-      this.loadMultiPlayers();
+      // this.loadMultiPlayers();
+      // this.setOpponentPlayer(
+      //   {
+      //     username: "Maxi_123",
+      //     best_score: 10000
+      //   }
+      // );
       this.isMultiPlayer = true;
     }
   }
