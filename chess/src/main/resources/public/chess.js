@@ -500,7 +500,7 @@ const changeColor = async () => {
 };
 let player;
 const loginPlayer = () => {
-    let url = "./chess/login";
+    let url = "./chess/loginTest";
     let init = {
         method: 'POST',
         body: document.getElementById("name").value

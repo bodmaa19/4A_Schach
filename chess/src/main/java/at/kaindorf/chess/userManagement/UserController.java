@@ -1,9 +1,9 @@
 package at.kaindorf.chess.userManagement;
 
-import at.kaindorf.chess.database.UserMockDatabase;
-import at.kaindorf.chess.jwt.JWTUtil;
-import at.kaindorf.chess.pojos.User;
-import at.kaindorf.chess.pojos.UserData;
+import at.kaindorf.chess.userManagement.database.UserMockDatabase;
+import at.kaindorf.chess.userManagement.jwt.JWTUtil;
+import at.kaindorf.chess.userManagement.pojos.User;
+import at.kaindorf.chess.userManagement.pojos.UserData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +55,7 @@ public class UserController
                 throw new Exception("not verified");
             }
             String token = JWTUtil.generateToken(userOptional.get().getUsername());
-            UserData userData = new UserData(userOptional.get().getUsername(), userOptional.get().getBestScore(), token);
+            UserData userData = new UserData(userOptional.get().getUserId(), userOptional.get().getUsername(), userOptional.get().getBestScore(), token);
             return ResponseEntity.ok().header("Authorization", token).body(userData);
         }
         catch (Exception e)
@@ -83,7 +83,7 @@ public class UserController
     {
         if (JWTUtil.verifyToken(token))
         {
-            User user = new User(userData.getUsername(), null, userData.getBestScore());
+            User user = new User(0, userData.getUsername(), null, userData.getBestScore());
             Optional<User> userOptional = userMockDatabase.updateBestScore(user);
             if (userOptional.isEmpty())
             {
@@ -92,6 +92,10 @@ public class UserController
             return ResponseEntity.ok(userData);
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+
+    public UserMockDatabase getUserMockDatabase() {
+        return userMockDatabase;
     }
 }
 

@@ -50,6 +50,16 @@ button
   text-overflow: ellipsis;
   color: whitesmoke;
   font-weight: lighter;
+  background: linear-gradient(to left, rgb(26, 52, 17) 50%, #00AA00 50%) right;
+  background-size: 200%;
+  font-weight: bold;
+  user-select: none;
+  transition: .3s ease-out;
+}
+
+button:hover {
+  color: black !important;
+  background-position: left;
 }
 
 .form
@@ -62,6 +72,6 @@ button
 }
 
 img {
-  height: 40vh;
-  width: auto;
+  height: auto;
+  width: 65%;
 }

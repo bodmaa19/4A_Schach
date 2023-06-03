@@ -57,7 +57,7 @@ export class BoardComponent implements OnInit {
     this.updateBoard();
     this.touchPiece();
 
-    let url = 'http://localhost:8080/chess/start?isSinglePlayer=true';
+    let url = 'http://localhost:8080/chess/angular/start?isSinglePlayer=true' + "&playerId="+this.player["playerId"];
     let init = {
       method: 'POST',
       headers: {
@@ -65,98 +65,12 @@ export class BoardComponent implements OnInit {
       },
       body: JSON.stringify(this.player)
     };
-    fetch(url, init)
+    fetch(url)
       .then(response => {
         return response.json()
       })
       .then(result => this.validMoves = result)
       .catch(error => console.log('error', error));
-  }
-
-  startMulti = () => {
-    this.isSingle = false;
-    this.drawBoard();
-    this.dragPiece();
-    this.updateBoard();
-    this.touchPiece();
-    let url = 'http://localhost:8080/chess/start?isSinglePlayer=false';
-    let init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.player)
-    };
-    fetch(url, init)
-      .then(response => {
-        return response.json()
-      })
-      .then(result => this.validMoves = result)
-      .catch(error => console.log('error', error));
-    this.waitForPlayer();
-  }
-
-  waitTimeout = 0;
-  waitForPlayer = async () => {
-    let url = 'http://localhost:8080/chess/wait';
-    let init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.player)
-    };
-    let check = false;
-    await fetch(url, init)
-      .then(response => {
-        return response.json()
-      })
-      .then(result => {
-        check = true;
-        console.log(result)
-        this.validMoves = result["moves"];
-        this.multiColor = result["white"];
-        this.turn = result["whiteTurn"];
-        if (!this.multiColor) {
-          this.changeColor()
-        }
-        this.updateMulti();
-      })
-      .catch(error => check = false);
-    if (check) {
-      clearTimeout(this.waitTimeout);
-    } else {
-      this.waitTimeout = window.setTimeout(this.waitForPlayer, 1000);
-    }
-  }
-
-  updateMulti = async () => {
-    if (this.multiColor != this.turn) {
-      let url = 'http://localhost:8080/chess/multi/checkBoard?turn=' + this.turn;
-      let init = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(this.player)
-      };
-
-      await fetch(url, init)
-        .then(response => {
-          return response.json()
-        })
-        .then(result => {
-          console.log(result)
-          this.validMoves = result["moves"];
-          this.multiColor = result["white"];
-          this.turn = result["whiteTurn"];
-          this.lastStart = result["aiMove"].startPos;
-          this.lastTarget = result["aiMove"].targetPos;
-          this.setBoard(result["fenString"]);
-        })
-        .catch(error => console.log(error));
-    }
-    window.setTimeout(this.updateMulti, 1000);
   }
 
   resetBoard = () => {
@@ -271,7 +185,7 @@ export class BoardComponent implements OnInit {
           ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
-        ctx.fillStyle = "#cdd26a";
+        ctx.fillStyle = "#00EE00";
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
@@ -487,9 +401,9 @@ export class BoardComponent implements OnInit {
     let targetPos = (this.isWhite) ? target : 63 - target
 
     if (this.isSingle) {
-      url = 'http://localhost:8080/chess/move/single?startPos=' + startPos + '&targetPos=' + targetPos;
+      url = 'http://localhost:8080/chess/angular/move/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     } else {
-      url = 'http://localhost:8080/chess/move/multi?startPos=' + startPos + '&targetPos=' + targetPos;
+      url = 'http://localhost:8080/chess/angular/move/multi?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     }
 
     let move: object = {
@@ -506,7 +420,7 @@ export class BoardComponent implements OnInit {
       },
       body: players
     };
-    fetch(url, init)
+    fetch(url)
       .then(response => {
         return response.json()
       })
@@ -576,10 +490,10 @@ export class BoardComponent implements OnInit {
 
   player : any;
   loginPlayer = () => {
-    let url = "http://localhost:8080/chess/login";
+    let url = "http://localhost:8080/chess/angular/login";
     let init = {
       method: 'POST',
-      body: "Maxi"
+      body: this.schach.player["userId"]
     };
     fetch(url, init)
       .then(response => {

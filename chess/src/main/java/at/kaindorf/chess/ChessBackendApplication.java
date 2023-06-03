@@ -1,6 +1,5 @@
 package at.kaindorf.chess;
 
-import at.kaindorf.chess.ai.book.BookIO;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

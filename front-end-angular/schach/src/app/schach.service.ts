@@ -50,6 +50,7 @@ export class SchachService implements OnInit, CanActivate {
     // @ts-ignore
     let password : String = document.getElementById("password").value;
     let user = {
+      userId: 0,
       username: username,
       password: password
     };
@@ -71,13 +72,25 @@ export class SchachService implements OnInit, CanActivate {
     }).catch(error => alert(error.toString()));
   }
 
-  login = () : void =>
+  login = (name ?: string, pwd ?: string) : void =>
   {
-    // @ts-ignore
-    let username : String = document.getElementById("username").value;
-    // @ts-ignore
-    let password : String = document.getElementById("password").value;
+    let username : String = "";
+    let password : String = "";
+    console.log(name)
+    if(name == undefined && pwd == undefined){
+      // @ts-ignore
+      console.log(document.getElementById("username").value)
+      username = (<HTMLInputElement> document.getElementById("username")).value;
+      password = (<HTMLInputElement> document.getElementById("password")).value;
+    }else{
+      // @ts-ignore
+      username = name;
+      // @ts-ignore
+      password = pwd;
+    }
+    console.log(username)
     let user = {
+      userId: 0,
       username: username,
       password: password
     };
@@ -101,7 +114,12 @@ export class SchachService implements OnInit, CanActivate {
       this.token = json["token"];
       // @ts-ignore
       this.player = json;
+      console.log(json)
       this.router.navigate(['/home']);
+      // @ts-ignore
+      sessionStorage.setItem("username", username);
+      // @ts-ignore
+      sessionStorage.setItem("password", password);
     }).catch(error => alert(error.toString()));
   }
 
@@ -119,13 +137,13 @@ export class SchachService implements OnInit, CanActivate {
     }
     else
     {
-      // this.loadMultiPlayers();
-      // this.setOpponentPlayer(
-      //   {
-      //     username: "Maxi_123",
-      //     best_score: 10000
-      //   }
-      // );
+      this.loadMultiPlayers();
+      this.setOpponentPlayer(
+        {
+          username: "Maxi is waiting for a player",
+          best_score: 10000
+        }
+      );
       this.isMultiPlayer = true;
     }
   }

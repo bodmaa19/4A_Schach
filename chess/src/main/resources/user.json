@@ -1,45 +1,71 @@
 [ {
+  "userId" : 4,
   "username" : "admin",
   "password" : "admin",
   "bestScore" : 0
 }, {
+  "userId" : 5,
   "username" : "test",
   "password" : "test",
   "bestScore" : 0
 }, {
+  "userId" : 6,
   "username" : "manuel",
   "password" : "1234",
   "bestScore" : 0
 }, {
+  "userId" : 7,
   "username" : "roman",
   "password" : "1442",
   "bestScore" : 0
 }, {
+  "userId" : 8,
   "username" : "spring",
   "password" : "boot",
   "bestScore" : 10
 }, {
+  "userId" : 9,
   "username" : "maurer_maxi",
   "password" : "1234",
   "bestScore" : 0
 }, {
+  "userId" : 10,
   "username" : "lanroa19",
   "password" : "1442",
   "bestScore" : 0
 }, {
+  "userId" : 11,
   "username" : "pos",
   "password" : "1234",
   "bestScore" : 0
 }, {
+  "userId" : 12,
   "username" : "consti",
   "password" : "bmwm4",
   "bestScore" : 0
 }, {
+  "userId" : 13,
   "username" : "sf",
   "password" : "1234",
   "bestScore" : 0
 }, {
+  "userId" : 14,
   "username" : "nico_diesdas",
   "password" : "0408",
+  "bestScore" : 0
+}, {
+  "userId" : 1,
+  "username" : "rom",
+  "password" : "1442",
+  "bestScore" : 0
+}, {
+  "userId" : 2,
+  "username" : "roma",
+  "password" : "1442",
+  "bestScore" : 0
+}, {
+  "userId" : 3,
+  "username" : "manu",
+  "password" : "1234",
   "bestScore" : 0
 } ]

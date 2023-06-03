@@ -50,47 +50,17 @@ export class MultiPlayerBoardComponent implements OnInit {
   isSingle = true;
   turn : any;
 
-  startSingle = () => {
-    this.isSingle = true;
-    this.isWhite = true;
-    this.multiColor = true;
-    this.drawBoard();
-    this.dragPiece();
-    this.updateBoard();
-    this.touchPiece();
-
-    let url = 'http://localhost:8080/chess/start?isSinglePlayer=true';
-    let init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.player)
-    };
-    fetch(url, init)
-      .then(response => {
-        return response.json()
-      })
-      .then(result => this.validMoves = result)
-      .catch(error => console.log('error', error));
-  }
-
   startMulti = () => {
     this.isSingle = false;
     this.drawBoard();
     this.dragPiece();
     this.updateBoard();
     this.touchPiece();
-    let url = 'http://localhost:8080/chess/start?isSinglePlayer=false';
-    let init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.player)
-    };
-    fetch(url, init)
+    let url = 'http://localhost:8080/chess/angular/start?isSinglePlayer=false' + "&playerId="+this.player["playerId"];
+
+    fetch(url)
       .then(response => {
+        console.log(response.json())
         return response.json()
       })
       .then(result => this.validMoves = result)
@@ -100,22 +70,21 @@ export class MultiPlayerBoardComponent implements OnInit {
 
   waitTimeout = 0;
   waitForPlayer = async () => {
-    let url = 'http://localhost:8080/chess/wait';
-    let init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(this.player)
-    };
+    let url = 'http://localhost:8080/chess/angular/wait?'+ "&playerId="+this.player["playerId"];
+
     let check = false;
-    await fetch(url, init)
+    await fetch(url)
       .then(response => {
         return response.json()
       })
       .then(result => {
         check = true;
-        console.log(result)
+        this.schach.setOpponentPlayer(
+          {
+            username: result["opponent"].username,
+            best_score: 10000
+          }
+        );
         this.validMoves = result["moves"];
         this.multiColor = result["white"];
         this.turn = result["whiteTurn"];
@@ -136,16 +105,9 @@ export class MultiPlayerBoardComponent implements OnInit {
 
   updateMulti = async () => {
     if (this.multiColor != this.turn) {
-      let url = 'http://localhost:8080/chess/multi/checkBoard?turn=' + this.turn;
-      let init = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(this.player)
-      };
+      let url = 'http://localhost:8080/chess/angular/multi/checkBoard?turn=' + this.turn + "&playerId="+this.player["playerId"];
 
-      await fetch(url, init)
+      await fetch(url)
         .then(response => {
           return response.json()
         })
@@ -275,7 +237,7 @@ export class MultiPlayerBoardComponent implements OnInit {
         ctx.fillStyle = "#e3c6aa";
       }
       if (this.lastStart != -1 && this.lastTarget != -1 && this.lastTarget == i || this.lastStart == i) {
-        ctx.fillStyle = "#cdd26a";
+        ctx.fillStyle = "#00DD00";
       }
       ctx.fillRect(x, y, this.FIELD, this.FIELD)
     }
@@ -485,32 +447,17 @@ export class MultiPlayerBoardComponent implements OnInit {
   //change
   makeMove = (start : any, target : any) => {
     this.validMoves = 0;
-    let init: object;
     let url: string;
     let startPos = (this.isWhite) ? start : 63 - start
     let targetPos = (this.isWhite) ? target : 63 - target
 
     if (this.isSingle) {
-      url = 'http://localhost:8080/chess/move/single?startPos=' + startPos + '&targetPos=' + targetPos;
+      url = 'http://localhost:8080/chess/move/angular/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     } else {
-      url = 'http://localhost:8080/chess/move/multi?startPos=' + startPos + '&targetPos=' + targetPos;
+      url = 'http://localhost:8080/chess/angular/move/multi?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     }
 
-    let move: object = {
-      startPos: (this.isWhite) ? start : 63 - start,
-      targetPos: (this.isWhite) ? target : 63 - target
-    };
-    let players = `[{"playerId":${this.player.playerId}, "name":"${this.player.name}"}]`
-
-    console.log(players)
-    init = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: players
-    };
-    fetch(url, init)
+    fetch(url)
       .then(response => {
         return response.json()
       })
@@ -580,11 +527,12 @@ export class MultiPlayerBoardComponent implements OnInit {
 
   player : any;
   loginPlayer = () => {
-    let url = "http://localhost:8080/chess/login";
+    let url = "http://localhost:8080/chess/angular/login";
     let init = {
       method: 'POST',
-      body: "Maxi"
+      body: this.schach.player["userId"]
     };
+    console.log(init);
     fetch(url, init)
       .then(response => {
         return response.json()

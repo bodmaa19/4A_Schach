@@ -27,12 +27,14 @@
 {
   color : #825324;
   border-color: #825324;
+  user-select: none;
 }
 
 .player_2
 {
   color : #e3c6aa;
   border-color: #e3c6aa;
+  user-select: none;
 }
 
 .clock
@@ -44,6 +46,7 @@
   align-items: center;
   margin: 0 !important;
   padding: 0 !important;
+  user-select: none;
 }
 
 .deadPieces
