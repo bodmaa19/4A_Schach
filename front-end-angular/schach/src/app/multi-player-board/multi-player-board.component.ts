@@ -25,7 +25,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     this.updateCountdownLabel();
     this.isPlayer = true;
     this.updateCountdownLabel();
-    this.startCountdown();
+    // this.startCountdown();
     (<HTMLDivElement>document.getElementById("wait")).style.display = "block";
     (<HTMLDivElement>document.getElementById("chess")).style.display = "none";
   }
@@ -98,6 +98,15 @@ export class MultiPlayerBoardComponent implements OnInit {
       (<HTMLDivElement>document.getElementById("wait")).style.display = "none";
       (<HTMLDivElement>document.getElementById("chess")).style.display = "block";
       clearTimeout(this.waitTimeout);
+      if (this.isWhite == true)
+      {
+        this.isPlayer = true;
+      }
+      else
+      {
+        this.isPlayer = false;
+      }
+      this.startCountdown();
     } else {
       this.waitTimeout = window.setTimeout(this.waitForPlayer, 1000);
     }
@@ -119,6 +128,18 @@ export class MultiPlayerBoardComponent implements OnInit {
           this.lastStart = result["aiMove"].startPos;
           this.lastTarget = result["aiMove"].targetPos;
           this.setBoard(result["fenString"]);
+          this.stopCountdown();
+          this.increaseCountdown();
+          this.isPlayer = !this.isPlayer;
+          if (this.isStarted == false)
+          {
+            this.startCountdown();
+            this.isStarted = true;
+          }
+          else
+          {
+            this.resumeCountdown();
+          }
         })
         .catch(error => console.log(error));
     }
@@ -174,13 +195,6 @@ export class MultiPlayerBoardComponent implements OnInit {
     }
     this.updateBoard();
     this.updateBoard();
-    if (this.isStarted)
-    {
-      this.stopCountdown();
-      this.increaseCountdown();
-      this.isPlayer = true;
-      this.resumeCountdown();
-    }
   }
 
   drawBoard = () => {
@@ -474,7 +488,7 @@ export class MultiPlayerBoardComponent implements OnInit {
       .catch(error => console.log('error', error));
     this.stopCountdown();
     this.increaseCountdown();
-    this.isPlayer = false;
+    this.isPlayer = !this.isPlayer;
     if (this.isStarted == false)
     {
       this.startCountdown();

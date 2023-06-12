@@ -68,4 +68,14 @@
   "username" : "manu",
   "password" : "1234",
   "bestScore" : 0
+}, {
+  "userId" : 15,
+  "username" : "hallo",
+  "password" : "1234",
+  "bestScore" : 0
+}, {
+  "userId" : 16,
+  "username" : "tschüss",
+  "password" : "1234",
+  "bestScore" : 0
 } ]
