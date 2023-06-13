@@ -68,4 +68,9 @@
   "username" : "manu",
   "password" : "1234",
   "bestScore" : 0
+}, {
+  "userId" : 15,
+  "username" : "manuel",
+  "password" : "",
+  "bestScore" : 0
 } ]
