@@ -1,4 +1,4 @@
 <div>
   <img routerLink="/" src="assets/images/icon.png" alt="">
-  <button id="logOut" routerLink="/" (click)="logOut()">log out</button>
+  <button *ngIf="isUserRoute()" id="logOut" routerLink="/" (click)="logOut()">log out</button>
 </div>

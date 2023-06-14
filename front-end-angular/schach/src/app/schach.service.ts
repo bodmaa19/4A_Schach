@@ -120,7 +120,7 @@ export class SchachService implements OnInit, CanActivate {
       sessionStorage.setItem("username", username);
       // @ts-ignore
       sessionStorage.setItem("password", password);
-    }).catch(error => alert(error.toString()));
+    }).catch(error => console.log(error.toString()));
   }
 
   setIsMultiPlayer = (mode : String) : void =>
@@ -165,7 +165,7 @@ export class SchachService implements OnInit, CanActivate {
     {
       // @ts-ignore
       this.multiPlayerPlayers = json;
-    }).catch(error => alert(error.toString()));
+    }).catch(error => console.log(error.toString()));
   }
 
   setOpponentPlayer = (opponentPlayer : any) : void =>
@@ -196,6 +196,7 @@ export class SchachService implements OnInit, CanActivate {
     {
       // alert(error.toString());
       this.router.navigate(['/']);
+      return false;
     });
     return true;
   }

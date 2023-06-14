@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {SchachService} from "../schach.service";
 
 @Component({
   selector: 'app-header',
@@ -12,5 +13,13 @@ export class HeaderComponent {
     sessionStorage.setItem("username", "notLoggedIn");
     // @ts-ignore
     sessionStorage.setItem("password", "notLoggedIn");
+  }
+
+  constructor(public schach : SchachService) {
+  }
+
+  isUserRoute(): boolean
+  {
+    return this.schach.router.url !== '/';
   }
 }
