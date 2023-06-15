@@ -18,6 +18,29 @@ img:hover
 }
 
 button {
+  height: 40%;
+  width: 30%;
+  color: whitesmoke;
+  border: 5px solid whitesmoke;
+  border-radius: 30px;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: linear-gradient(to left, rgb(26, 52, 17) 50%, #00AA00 50%) right;
+  background-size: 200%;
+  transition: .3s ease-out;
+  font-weight: bold;
+  user-select: none;
+  margin-left: 50px;
+}
+
+button:hover {
+  color: black !important;
+  background-position: left;
+}
+
+button {
   height: auto;
   width: auto;
   font-size: x-large;

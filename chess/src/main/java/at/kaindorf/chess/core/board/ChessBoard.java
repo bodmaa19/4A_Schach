@@ -1,5 +1,7 @@
 package at.kaindorf.chess.core.board;
 
+import at.kaindorf.chess.core.pojos.GameAlreadyEndedException;
+import at.kaindorf.chess.core.pojos.GameStatus;
 import at.kaindorf.chess.core.pojos.moves.EnPassantMove;
 import at.kaindorf.chess.core.pojos.moves.Move;
 import at.kaindorf.chess.core.pojos.moves.PromotionMove;
@@ -18,6 +20,7 @@ public class ChessBoard {
     private boolean whiteTurn = false;
     private String moveHistoryStr = "";
     private Move lastMove;
+    private GameStatus gameStatus = GameStatus.StillPlaying;
 
     public ChessBoard() {
         setBoardWithFenString("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
@@ -114,60 +117,65 @@ public class ChessBoard {
         return boardStr;
     }
 
-    public List<Move> getAllValidMoves(boolean check) {
+    public List<Move> getAllValidMoves(boolean removeInvalidMoves) {
+        if(gameStatus != GameStatus.StillPlaying) {
+            throw new GameAlreadyEndedException();
+        }
+
         // Gets all moves including the ones that end up in a check for the king
-            List<Move> moves = new ArrayList<>();
+        List<Move> moves = new ArrayList<>();
 
-            for (int i = 0; i < board.length; i++) {
-                Piece p = board[i].getPiece();
+        for (int i = 0; i < board.length; i++) {
+            Piece p = board[i].getPiece();
 
-                List<Move> newMoves = null;
-                if ((whiteTurn && p.isWhitePiece()) || (!whiteTurn && !p.isWhitePiece())) {
-                    newMoves = switch (p.getPieceType()) {
-                        case King -> Move.getValidKingMove(board[i], i, board);
-                        case Queen -> Move.getValidQueenMove(board[i], i, board);
-                        case Rook -> Move.getValidRookMove(board[i], i, board);
-                        case Knight -> Move.getValidKnightMove(board[i], i, board);
-                        case Bishop -> Move.getValidBishopMove(board[i], i, board);
-                        case Pawn -> Move.getValidPawnMove(board[i], i, this);
-                        case NoPiece -> null;
-                    };
-                }
-                if (newMoves != null) {
-                    moves.addAll(newMoves);
-                }
+            List<Move> newMoves = null;
+            if ((whiteTurn && p.isWhitePiece()) || (!whiteTurn && !p.isWhitePiece())) {
+                newMoves = switch (p.getPieceType()) {
+                    case King -> Move.getValidKingMove(board[i], i, board);
+                    case Queen -> Move.getValidQueenMove(board[i], i, board);
+                    case Rook -> Move.getValidRookMove(board[i], i, board);
+                    case Knight -> Move.getValidKnightMove(board[i], i, board);
+                    case Bishop -> Move.getValidBishopMove(board[i], i, board);
+                    case Pawn -> Move.getValidPawnMove(board[i], i, this);
+                    case NoPiece -> null;
+                };
             }
+            if (newMoves != null) {
+                moves.addAll(newMoves);
+            }
+        }
 
-            // Checks if castling is possible
-                Piece king = (whiteTurn) ? Piece.WK : Piece.BK;
-                int castling = Move.isCastling(this);
-                int kingIdx = findPiece(king);
-                if (castling == 1 || castling == 3) {
-                    moves.add(new Move(kingIdx, kingIdx - 2));
-                }
-                if (castling == 2 || castling == 3) {
-                    moves.add(new Move(kingIdx, kingIdx + 2));
-                }
-            //
-        //
+        // Checks if castling is possible
+        Piece king = (whiteTurn) ? Piece.WK : Piece.BK;
+        int castling = Move.isCastlingPossible(this);
+        int kingIdx = findPiece(king);
+        if (castling == 1 || castling == 3) {
+            moves.add(new Move(kingIdx, kingIdx - 2));
+        }
+        if (castling == 2 || castling == 3) {
+            moves.add(new Move(kingIdx, kingIdx + 2));
+        }
 
         // Check for invalid moves that end up in a check (if the boolean check flag is set)
-            if (check) {
-                List<Move> removeList = new ArrayList<>();
+        if (removeInvalidMoves) {
+            List<Move> removeList = new ArrayList<>();
 
-                for (Move move : moves) {
-                    ChessBoard nextMoveChessBoard = new ChessBoard(this);
-                    nextMoveChessBoard.makeMove(move, false);
-                    List<Move> nextMoves = nextMoveChessBoard.getAllValidMoves(false);
+            for (Move move : moves) {
+                ChessBoard nextMoveChessBoard = new ChessBoard(this);
+                nextMoveChessBoard.makeMove(move, false);
+                List<Move> nextMoves = nextMoveChessBoard.getAllValidMoves(false);
 
-                    if (nextMoveChessBoard.canKingBeCaptured(nextMoves, king)) {
-                        removeList.add(move);
-                    }
+                if (nextMoveChessBoard.canKingBeCaptured(nextMoves, king)) {
+                    removeList.add(move);
                 }
-                moves.removeAll(removeList);
             }
-        //
+            moves.removeAll(removeList);
+        }
 
+        if(moves.size() == 0) {
+            gameStatus = isKingInCheck() ? isWhiteTurn() ? GameStatus.BlackWon : GameStatus.WhiteWon
+                    : GameStatus.Draw;
+        }
         return moves;
     }
 
@@ -182,6 +190,10 @@ public class ChessBoard {
     }
 
     private void movePiece(Move move) {
+        if(gameStatus != GameStatus.StillPlaying) {
+            throw new GameAlreadyEndedException();
+        }
+
         int startPos = move.getStartPos();
         int targetPos = move.getTargetPos();
 
@@ -191,33 +203,33 @@ public class ChessBoard {
         board[startPos] = new ChessPiece(Piece.NO, 0);
 
         // En Passante
-            if(move instanceof EnPassantMove) {
-                board[((EnPassantMove)move).getEnPassantCaptureIdx()] = new ChessPiece(Piece.NO, 0);
-            }
+        if(move instanceof EnPassantMove) {
+            board[((EnPassantMove)move).getEnPassantCaptureIdx()] = new ChessPiece(Piece.NO, 0);
+        }
         //
 
         // Promotion
-            if(move instanceof PromotionMove) {
-                PieceColor color = movedPiece.getPieceColor();
-                PieceType type = ((PromotionMove) move).getDesiredType();
-                Piece promotionPiece = Piece.create(type, color);
+        if(move instanceof PromotionMove) {
+            PieceColor color = movedPiece.getPieceColor();
+            PieceType type = ((PromotionMove) move).getDesiredType();
+            Piece promotionPiece = Piece.create(type, color);
 
-                board[targetPos] = new ChessPiece(promotionPiece, 0);
-            }
+            board[targetPos] = new ChessPiece(promotionPiece, 0);
+        }
 
         // Rochade
-            if (movedPiece.equals((whiteTurn) ? Piece.WK : Piece.BK)) {
-                int kingDiff = targetPos - startPos;
-                if (Math.abs(kingDiff) == 2) {
-                    if (kingDiff < 0) {
-                        board[targetPos + 1] = board[startPos - 4];
-                        board[startPos - 4] = new ChessPiece(Piece.NO, 0);
-                    } else {
-                        board[targetPos - 1] = board[startPos + 3];
-                        board[startPos + 3] = new ChessPiece(Piece.NO, 0);
-                    }
+        if (movedPiece.equals((whiteTurn) ? Piece.WK : Piece.BK)) {
+            int kingDiff = targetPos - startPos;
+            if (Math.abs(kingDiff) == 2) {
+                if (kingDiff < 0) {
+                    board[targetPos + 1] = board[startPos - 4];
+                    board[startPos - 4] = new ChessPiece(Piece.NO, 0);
+                } else {
+                    board[targetPos - 1] = board[startPos + 3];
+                    board[startPos + 3] = new ChessPiece(Piece.NO, 0);
                 }
             }
+        }
         //
     }
 
@@ -232,7 +244,7 @@ public class ChessBoard {
         //
 
         Piece p = board[targetPos].getPiece();
-        if (!(p.getPieceType() == PieceType.Pawn)) {
+        if (p.getPieceType() != PieceType.Pawn) {
             moveHistoryStr += p.getFen().toUpperCase();
         }
 
@@ -250,6 +262,29 @@ public class ChessBoard {
         }
 
         return false;
+    }
+
+    public boolean isKingInCheck() {
+        if(gameStatus != GameStatus.StillPlaying) {
+            throw new GameAlreadyEndedException();
+        }
+
+        Move lastMove = this.lastMove;
+        System.out.println(lastMove);
+        //Piece lastMovedPiece = board[lastMove.getTargetPos()].getPiece();
+        Piece enemyKing = isWhiteTurn() ? Piece.BK : Piece.WK;
+
+        int idxOfKing = findPiece(enemyKing);
+        boolean isKingInCheck = false;
+
+        /*for(int moveIdx : lastMovedPiece.getMoves()) {
+            if(idxOfKing == moveIdx + lastMove.getTargetPos()) {
+                isKingInCheck = true;
+                break;
+            }
+        }*/
+
+        return isKingInCheck;
     }
 
     public boolean isCheckMove(Move move, Piece king) {
@@ -275,6 +310,9 @@ public class ChessBoard {
     }
 
     public void changeTurn() {
+        if(gameStatus != GameStatus.StillPlaying) {
+            throw new GameAlreadyEndedException();
+        }
         whiteTurn = !whiteTurn;
     }
 
@@ -304,6 +342,10 @@ public class ChessBoard {
 
     public Move getPreviousMove() {
         return lastMove;
+    }
+
+    public GameStatus getGameStatus() {
+        return gameStatus;
     }
 
     public static void main(String[] args) {

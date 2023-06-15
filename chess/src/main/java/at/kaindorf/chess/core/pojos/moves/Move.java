@@ -222,7 +222,7 @@ public class Move {
         return move;
     }
 
-    public static int isCastling(ChessBoard board) {
+    public static int isCastlingPossible(ChessBoard board) {
         boolean turn = board.isWhiteTurn();
         Optional<ChessPiece> optionalChessPiece = Arrays.stream(board.getBoard()).filter(p -> p.getPiece().equals((turn) ? Piece.WK : Piece.BK)).findFirst();
         ChessPiece king = null;

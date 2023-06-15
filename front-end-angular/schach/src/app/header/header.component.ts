@@ -22,4 +22,8 @@ export class HeaderComponent {
   {
     return this.schach.router.url !== '/';
   }
+
+  reload() {
+    window.location.reload();
+  }
 }

@@ -113,6 +113,7 @@ public class ChessController {
             }
             // von Maxi ende
             board.makeMove(move, true);
+            System.out.println(board.getLastMove());
             board.changeTurn();
             ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
                     move, isSendingPlayerWhite, board.isWhiteTurn(), null);
