@@ -22,7 +22,7 @@ public class BookIO {
         try {
             List<String> lines = Files.readAllLines(oldBookPath);
             for (int i = 0; i < lines.size()-1; i++) {
-                if(!lines.get(i).startsWith("1.")){
+                if(!lines.get(i).startsWith("1.") || lines.get(i).startsWith("1.d4 g6") || lines.get(i).startsWith("1.e4 g6")){
                     lines.remove(i);
                     i--;
                 }
