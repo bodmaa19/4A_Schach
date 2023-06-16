@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
+/**
+ * project name: Schach_4A
+ * author: Manuel Bodlos
+ * date: 05.04.2023
+ */
 @RestController()
 public class UserController
 {

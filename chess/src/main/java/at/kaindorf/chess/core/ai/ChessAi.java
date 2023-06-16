@@ -8,11 +8,14 @@ import at.kaindorf.chess.core.pojos.piece.Piece;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 08.04.2023
+ */
 public class ChessAi {
     private static Move bestMove;
     private static int wishedDepth = 4;
-
 
     public static Move calculateBestMove(ChessBoard board) {
         bestMove = null;

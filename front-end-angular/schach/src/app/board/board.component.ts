@@ -365,6 +365,7 @@ export class BoardComponent implements OnInit {
     let i = 0;
 
     for (let i = 0; i < this.board.length; i++) {
+      // @ts-ignore
       if (this.board[i] != '') {
         let id = this.board[i].getAttribute("id");
         if (id.length == 2) {
@@ -388,7 +389,7 @@ export class BoardComponent implements OnInit {
     if (num != 0) {
       fen += num;
     }
-    console.log(fen);
+    console.log(fen)
     return fen;
   }
 
@@ -412,7 +413,7 @@ export class BoardComponent implements OnInit {
     };
     let players = `[{"playerId":${this.player.playerId}, "name":"${this.player.name}"}]`
 
-    console.log(players)
+    this.drawDeadPieces();
     init = {
       method: 'POST',
       headers: {
@@ -424,15 +425,15 @@ export class BoardComponent implements OnInit {
       .then(response => {
         return response.json()
       })
-      .then(json => {
-        console.log(json["fenString"])
+      .then(async json => {
+
         this.validMoves = json["moves"];
         this.lastStart = json["aiMove"].startPos;
         this.lastTarget = json["aiMove"].targetPos;
         this.turn = json["whiteTurn"];
         this.lastFen = json["fenString"];
-        console.log(this.lastFen)
-        this.setBoard(json["fenString"]);
+        await this.setBoard(json["fenString"]);
+        this.drawDeadPieces();
       })
       .catch(error => console.log('error', error));
     this.stopCountdown();
@@ -478,8 +479,6 @@ export class BoardComponent implements OnInit {
 
   changeColor = async () => {
     this.isWhite = !this.isWhite;
-    console.log(this.isWhite)
-    console.log(this.lastFen)
     this.setBoard(this.lastFen);
     /*for(let key in validMoves){
         validMoves[key].startPos = 63 - validMoves[key].startPos;
@@ -501,7 +500,6 @@ export class BoardComponent implements OnInit {
       })
       .then(json => {
         this.player = json;
-        console.log(json)
         let text = "Hallo " + this.player["name"] + "! (id: " + this.player["playerId"] + ")"
       })
       .catch(error => console.log('error', error));
@@ -509,26 +507,37 @@ export class BoardComponent implements OnInit {
 
   firstNumberOfPieces: number[] = [];
 
-  drawDeadPieces = () => {
-    let fen: string = this.getFenString();
+  drawDeadPieces = async () => {
+    let fen: string = await this.getFenString();
     let numberOfPieces: number[] = [];
     let images: any = document.getElementsByClassName("piece");
     let blackPieces: string = "";
     let whitePieces: string = "";
-
-    console.log(this.firstNumberOfPieces[0])
-
     if (this.firstNumberOfPieces[0] == undefined) {
+      let startPos: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
       for (let i = 0; i < 12; i++) {
         let id: string = images[i].getAttribute("id");
-        this.firstNumberOfPieces[i] = fen.split(id).length;
+
+        console.log(startPos.split(id))
+        if (id.length == 2) {
+          id = id.charAt(1);
+        }
+
+        this.firstNumberOfPieces[i] = startPos.split(id).length - 1;
       }
     }
+    console.log(this.firstNumberOfPieces)
     for (let i = 0; i < 12; i++) {
-      let id: string = images[i].getAttribute("id");
-      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length; j++) {
+      let idFull: string = images[i].getAttribute("id");
+      let id: string = idFull;
+      if (idFull.length == 2) {
+        id = idFull.charAt(1);
+      }
+      //@ts-ignore
+      console.log(id + ": " + (this.firstNumberOfPieces[i] - fen.split(id).length))
+      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length+1; j++) {
         //console.log(images[i])
-        if (id.length == 2) {
+        if (idFull.length == 2) {
           blackPieces += `<img style="height: 80px; width: auto" src="assets/images/${images[i].getAttribute("id").toUpperCase()}.png"></img>`;
         } else {
           whitePieces += `<img style="height: 80px; width: auto" src="assets/images/W${images[i].getAttribute("id")}.png"></img>`;
@@ -538,9 +547,6 @@ export class BoardComponent implements OnInit {
     /*console.log(blackPieces);
     console.log(whitePieces);
     console.log(document.getElementsByTagName("div"));*/
-
-    console.log(document.getElementsByTagName("div"));
-
     // @ts-ignore
     (document.getElementsByClassName("deadPiecesBlack"))[0].innerHTML = blackPieces;
     // @ts-ignore

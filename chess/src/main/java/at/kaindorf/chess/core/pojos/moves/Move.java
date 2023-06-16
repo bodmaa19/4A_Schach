@@ -12,7 +12,11 @@ import at.kaindorf.chess.core.pojos.piece.PieceType;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 24.03.2023
+ */
 public class Move {
     private int startPos;
     private int targetPos;

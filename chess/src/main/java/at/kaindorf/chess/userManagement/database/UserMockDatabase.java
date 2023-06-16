@@ -8,7 +8,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+/**
+ * project name: Schach_4A
+ * author: Manuel Bodlos
+ * date: 05.04.2023
+ */
 public class UserMockDatabase
 {
     private static UserMockDatabase theInstance = null;

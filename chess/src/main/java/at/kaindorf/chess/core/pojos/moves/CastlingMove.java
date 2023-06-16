@@ -8,7 +8,11 @@ import lombok.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 08.04.2023
+ */
 @Getter
 @Setter
 public class CastlingMove extends Move {

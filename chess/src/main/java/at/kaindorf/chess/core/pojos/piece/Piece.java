@@ -1,5 +1,9 @@
 package at.kaindorf.chess.core.pojos.piece;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 24.03.2023
+ */
 public enum Piece {
     WK("K", new int[]{1, -1, 8, -8, 9, -9, 7, -7}, 'w', -4000, new int[]{
             0, 0, 0, 0, 0, 0, 0, 0,

@@ -7,7 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 21.05.2023
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

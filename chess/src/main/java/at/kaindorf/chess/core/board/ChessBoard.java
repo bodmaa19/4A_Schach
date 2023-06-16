@@ -14,7 +14,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 24.03.2023
+ */
 public class ChessBoard {
     private ChessPiece[] board = new ChessPiece[64];
     private boolean whiteTurn = false;

@@ -9,7 +9,11 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
-
+/**
+ * project name: Schach_4A
+ * author: Manuel Bodlos
+ * date: 07.04.2023
+ */
 public class IO_Access
 {
     public static List<User> readUserFromJson() throws IOException

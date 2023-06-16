@@ -7,7 +7,11 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.ext.Provider;
 
 import java.io.IOException;
-
+/**
+ * project name: Schach_4A
+ * author: Manuel Bodlos
+ * date: 05.04.2023
+ */
 @JWTNeeded
 @Provider
 @Priority(Priorities.AUTHORIZATION)

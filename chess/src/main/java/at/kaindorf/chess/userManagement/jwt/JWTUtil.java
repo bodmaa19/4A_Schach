@@ -6,7 +6,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-
+/**
+ * project name: Schach_4A
+ * author: Manuel Bodlos
+ * date: 05.04.2023
+ */
 public class JWTUtil
 {
     private static final String JWT_SECRET = "This-is-my-secret-to-encrypt-all-the-data-from-the-user-to-secure-our-system-!";

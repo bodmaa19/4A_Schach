@@ -12,7 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 24.03.2023
+ */
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 public class ChessController {

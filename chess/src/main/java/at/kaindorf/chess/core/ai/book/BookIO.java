@@ -7,6 +7,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * project name: Schach_4A
+ * author: Roman Lanschützer
+ * date: 21.05.2023
+ */
+
 public class BookIO {
     public static final Path oldBookPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "originalBook.txt");
     public static final Path bookPath = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "newBook.txt");
