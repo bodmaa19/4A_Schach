@@ -132,9 +132,9 @@ public class ChessAi {
             move.setAiScore(score);
         }
         if (board.isWhiteTurn()) {
-            moves.sort((o1, o2) -> -1 * (o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
+            moves.sort((o1, o2) -> -1 * Math.abs(o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
         } else {
-            moves.sort((o1, o2) -> (o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
+            moves.sort((o1, o2) -> Math.abs(o1.getAiScore() > o2.getAiScore() ? -1 : o1.getAiScore() < o2.getAiScore() ? 1 : 0));
         }
         //System.out.println(moves);
         //System.out.println(moves.get(0).getAiScore() + " " + moves.get(moves.size()-1).getAiScore());
