@@ -175,22 +175,40 @@ public class ChessBoard {
             }
             moves.removeAll(removeList);
         }
-
-        if(moves.size() == 0) {
-            gameStatus = isKingInCheck() ? isWhiteTurn() ? GameStatus.BlackWon : GameStatus.WhiteWon
-                    : GameStatus.Draw;
-        }
         return moves;
     }
 
     public void makeMove(Move move, boolean realMove) {
         movePiece(move);
 
+
         if(realMove) {
-            board[move.getTargetPos()].increaseMoveCounter();
             lastMove = move;
+            gameStatus = checkGameStatus();
+            board[move.getTargetPos()].increaseMoveCounter();
             updateMoveHistoryString(move);
         }
+    }
+
+    private GameStatus checkGameStatus() {
+        GameStatus newGameStatus = GameStatus.StillPlaying;
+        boolean wasLastMoveWhite = whiteTurn;
+        boolean isKingCurrentlyInCheck = isKingInCheck();
+
+        // Check what are the possible moves of the opponent
+            changeTurn();
+                List<Move> validMoves = this.getAllValidMoves(true);
+                if(validMoves.isEmpty()) {
+                    if(isKingCurrentlyInCheck) {
+                        newGameStatus = wasLastMoveWhite ? GameStatus.WhiteWon : GameStatus.BlackWon;
+                    } else {
+                        newGameStatus = GameStatus.Draw;
+                    }
+                }
+            changeTurn();
+        //
+
+        return newGameStatus;
     }
 
     private void movePiece(Move move) {
@@ -273,22 +291,23 @@ public class ChessBoard {
             throw new GameAlreadyEndedException();
         }
 
-        Move lastMove = this.lastMove;
-        System.out.println(lastMove);
-        //Piece lastMovedPiece = board[lastMove.getTargetPos()].getPiece();
-        Piece enemyKing = isWhiteTurn() ? Piece.BK : Piece.WK;
+        // Gets the king of the player that has NOT moved this turn
+            Piece enemyKing = isWhiteTurn() ? Piece.BK : Piece.WK;
+            int idxOfKing = findPiece(enemyKing);
+        //
 
-        int idxOfKing = findPiece(enemyKing);
-        boolean isKingInCheck = false;
-
-        /*for(int moveIdx : lastMovedPiece.getMoves()) {
-            if(idxOfKing == moveIdx + lastMove.getTargetPos()) {
-                isKingInCheck = true;
-                break;
+        // Checks if the player could capture the king if he were to move twice
+            List<Move> possibleMovesForNextTurn = this.getAllValidMoves(true);
+            boolean canKingBeCapturedNextMove = false;
+            for (Move m : possibleMovesForNextTurn) {
+                if(m.getTargetPos() == idxOfKing) {
+                    canKingBeCapturedNextMove = true;
+                    break;
+                }
             }
-        }*/
+        //
 
-        return isKingInCheck;
+        return canKingBeCapturedNextMove;
     }
 
     public boolean isCheckMove(Move move, Piece king) {
@@ -314,9 +333,6 @@ public class ChessBoard {
     }
 
     public void changeTurn() {
-        if(gameStatus != GameStatus.StillPlaying) {
-            throw new GameAlreadyEndedException();
-        }
         whiteTurn = !whiteTurn;
     }
 

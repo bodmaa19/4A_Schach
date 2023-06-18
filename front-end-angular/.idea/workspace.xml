@@ -4,16 +4,31 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="df3fe817-3287-4794-b31b-7baf25716771" name="Changes" comment="" />
+    <list default="true" id="df3fe817-3287-4794-b31b-7baf25716771" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/board/ChessBoard.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/board/ChessBoard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/controller/AngularChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/controller/AngularChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/controller/ChessController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/controller/ChessController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/pojos/ChessReturn.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chess/src/main/java/at/kaindorf/chess/core/pojos/ChessReturn.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chess/src/main/resources/user.json" beforeDir="false" afterPath="$PROJECT_DIR$/../chess/src/main/resources/user.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schach/src/app/board/board.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/schach/src/app/board/board.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/schach/src/app/multi-player-board/multi-player-board.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/schach/src/app/multi-player-board/multi-player-board.component.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2O0GdrOwEcJkRfeKZ3a0JHNmhbU" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
@@ -21,16 +36,17 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "D:/POS4/PROJECT/4A_Schach/front-end-angular/schach",
+    "last_opened_file_path": "C:/Users/43650/Desktop/Schule/4AHIF/POS/2. Semester/4A_Schach_2/4A_Schach/front-end-angular",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "D:\\POS4\\PROJECT\\4A_Schach\\front-end-angular\\schach\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\43650\\Desktop\\Schule\\4AHIF\\POS\\2. Semester\\4A_Schach_2\\4A_Schach\\front-end-angular\\schach\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -60,10 +76,24 @@
       <workItem from="1680690177732" duration="40000" />
       <workItem from="1680714950714" duration="885000" />
       <workItem from="1680774470680" duration="117000" />
+      <workItem from="1686814375779" duration="242000" />
+      <workItem from="1686836294006" duration="81000" />
+      <workItem from="1687107698568" duration="5033000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

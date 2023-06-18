@@ -2,6 +2,7 @@ package at.kaindorf.chess.core.controller;
 
 import at.kaindorf.chess.core.ai.ChessAi;
 import at.kaindorf.chess.core.board.ChessBoard;
+import at.kaindorf.chess.core.pojos.GameAlreadyEndedException;
 import at.kaindorf.chess.userManagement.database.UserMockDatabase;
 import at.kaindorf.chess.core.pojos.ChessReturn;
 import at.kaindorf.chess.userManagement.pojos.Player;
@@ -76,10 +77,14 @@ public class AngularChessController {
             List<Player> players = optionalPlayers.get();
             int idx = players.indexOf(player);
             ChessBoard board = games.get(players);
-            Player opponent = (idx == 0) ? players.get(1) : players.get(0);
-            ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
-                    new Move(1, 1), (idx == 0) ? true : false, board.isWhiteTurn(), opponent.getUser());
-            return chessReturn;
+            try {
+                Player opponent = (idx == 0) ? players.get(1) : players.get(0);
+                ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
+                        new Move(1, 1), (idx == 0) ? true : false, board.isWhiteTurn(), opponent.getUser(), board.getGameStatus());
+                return chessReturn;
+            } catch (GameAlreadyEndedException ex) {
+                return new ChessReturn(board.getGameStatus());
+            }
         }
 
         return null;
@@ -95,11 +100,16 @@ public class AngularChessController {
             int idx = players.indexOf(player);
             Player opponent = (idx == 0) ? players.get(1) : players.get(0);
             ChessBoard board = games.get(players);
-            if (turn != board.isWhiteTurn()) {
-                ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
-                        board.getLastMove(), (idx == 0) ? true : false, board.isWhiteTurn(), opponent.getUser());
-                return chessReturn;
+            try {
+                if (turn != board.isWhiteTurn()) {
+                    ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
+                            board.getLastMove(), (idx == 0) ? true : false, board.isWhiteTurn(), opponent.getUser(), board.getGameStatus());
+                    return chessReturn;
+                }
+            } catch (GameAlreadyEndedException ex) {
+                return new ChessReturn(board.getGameStatus());
             }
+
         }
         return null;
     }
@@ -111,12 +121,17 @@ public class AngularChessController {
         if (optionalPlayers.isPresent()) {
             List<Player> players = optionalPlayers.get();
             ChessBoard board = games.get(players);
-            board.makeMove(new Move(startPos, targetPos), true);
-            board.changeTurn();
-            Move aiMove = ChessAi.calculateBestMove(new ChessBoard(board, false));
-            board.makeMove(aiMove, true);
-            board.changeTurn();
-            return new ChessReturn(board.generateFenString(), board.getAllValidMoves(true), aiMove, true, board.isWhiteTurn(), null);
+            try {
+                board.makeMove(new Move(startPos, targetPos), true);
+                board.changeTurn();
+                Move aiMove = ChessAi.calculateBestMove(new ChessBoard(board, false));
+                board.makeMove(aiMove, true);
+                board.changeTurn();
+                return new ChessReturn(board.generateFenString(), board.getAllValidMoves(true), aiMove, true, board.isWhiteTurn(), null, board.getGameStatus());
+            } catch (GameAlreadyEndedException ex) {
+                return new ChessReturn(board.getGameStatus());
+            }
+
         }
         return null;
     }
@@ -129,20 +144,26 @@ public class AngularChessController {
         if (optionalPlayers.isPresent()) {
             List<Player> twoPlayerLobby = optionalPlayers.get();
             ChessBoard board = games.get(twoPlayerLobby);
-            boolean isSendingPlayerWhite = twoPlayerLobby.indexOf(player) == 0;
+            try {
+                boolean isSendingPlayerWhite = twoPlayerLobby.indexOf(player) == 0;
 
-            List<Move> validMoves = board.getAllValidMoves(true);
-            Move move = validMoves.stream().filter(m -> m.getStartPos() == startPos && m.getTargetPos() == targetPos).findFirst().get();
-            // von Maxi
-            if (move instanceof PromotionMove && desiredPiece != null) {
-                ((PromotionMove) move).setDesiredType(desiredPiece);
+                List<Move> validMoves = board.getAllValidMoves(true);
+                Move move = validMoves.stream().filter(m -> m.getStartPos() == startPos && m.getTargetPos() == targetPos).findFirst().get();
+                // von Maxi
+                if (move instanceof PromotionMove && desiredPiece != null) {
+                    ((PromotionMove) move).setDesiredType(desiredPiece);
+                }
+                // von Maxi ende
+                board.makeMove(move, true);
+                board.changeTurn();
+                System.out.println("STATUS: " + board.getGameStatus());
+                ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
+                        move, isSendingPlayerWhite, board.isWhiteTurn(), null, board.getGameStatus());
+                return ResponseEntity.ok(chessReturn);
+            } catch (GameAlreadyEndedException ex) {
+                return ResponseEntity.ok(new ChessReturn(board.getGameStatus()));
             }
-            // von Maxi ende
-            board.makeMove(move, true);
-            board.changeTurn();
-            ChessReturn chessReturn = new ChessReturn(board.generateFenString(), board.getAllValidMoves(true),
-                    move, isSendingPlayerWhite, board.isWhiteTurn(), null);
-            return ResponseEntity.ok(chessReturn);
+
         }
         return null;
     }

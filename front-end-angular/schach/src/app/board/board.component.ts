@@ -426,6 +426,10 @@ export class BoardComponent implements OnInit {
         return response.json()
       })
       .then(async json => {
+        if(json["status"] != 'StillPlaying') {
+          alert(json["status"]);
+          //ToDo: Change to a Page that displays the status
+        }
 
         this.validMoves = json["moves"];
         this.lastStart = json["aiMove"].startPos;

@@ -40,6 +40,7 @@ export class MultiPlayerBoardComponent implements OnInit {
   isDrag = false;
   dragIndex : any;
   validMoves : any;
+  gameStatus: any;
 
   timeout : any;
   lastStart = -1;
@@ -49,6 +50,7 @@ export class MultiPlayerBoardComponent implements OnInit {
   lastFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
   isSingle = true;
   turn : any;
+
 
   startMulti = () => {
     this.isSingle = false;
@@ -121,12 +123,19 @@ export class MultiPlayerBoardComponent implements OnInit {
           return response.json()
         })
         .then(result => {
+          if(result["status"] != 'StillPlaying') {
+            alert(result["status"]);
+            //ToDo: Change to a Page that displays the status
+          }
+
           console.log(result)
           this.validMoves = result["moves"];
+          this.gameStatus = result["status"]
           this.multiColor = result["white"];
           this.turn = result["whiteTurn"];
           this.lastStart = result["aiMove"].startPos;
           this.lastTarget = result["aiMove"].targetPos;
+
           this.setBoard(result["fenString"]);
           this.stopCountdown();
           this.increaseCountdown();
@@ -466,7 +475,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     let targetPos = (this.isWhite) ? target : 63 - target
 
     if (this.isSingle) {
-      url = 'http://localhost:8080/chess/move/angular/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
+      url = 'http://localhost:8080/chess/angular/move/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     } else {
       url = 'http://localhost:8080/chess/angular/move/multi?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     }
@@ -476,13 +485,18 @@ export class MultiPlayerBoardComponent implements OnInit {
         return response.json()
       })
       .then(json => {
-        console.log(json["fenString"])
+        if(json["status"] != 'StillPlaying') {
+          alert(json["status"]);
+          //ToDo: Change to a Page that displays the status
+        }
+
         this.validMoves = json["moves"];
         this.lastStart = json["aiMove"].startPos;
         this.lastTarget = json["aiMove"].targetPos;
         this.turn = json["whiteTurn"];
         this.lastFen = json["fenString"];
-        console.log(this.lastFen)
+        this.gameStatus = json["status"];
+
         this.setBoard(json["fenString"]);
       })
       .catch(error => console.log('error', error));

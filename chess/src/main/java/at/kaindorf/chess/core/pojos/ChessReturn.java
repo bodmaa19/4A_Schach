@@ -22,4 +22,9 @@ public class ChessReturn {
     private boolean white;
     private boolean isWhiteTurn;
     private User opponent;
+    private GameStatus status;
+
+    public ChessReturn(GameStatus status) {
+        this.status = status;
+    }
 }
