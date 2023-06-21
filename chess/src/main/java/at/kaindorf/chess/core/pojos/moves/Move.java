@@ -243,6 +243,10 @@ public class Move {
             boolean isEmptyLeft = true;
             boolean isEmptyRight = true;
             for (int i = kingIdx - 3; i < kingIdx + 3; i++) {
+                if(i > 63) {
+                    break;
+                }
+
                 if (i < kingIdx) {
                     if (!board.getBoard()[i].getPiece().equals(Piece.NO)) {
                         isEmptyLeft = false;

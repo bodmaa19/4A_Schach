@@ -219,8 +219,11 @@ public class ChessBoard {
         int startPos = move.getStartPos();
         int targetPos = move.getTargetPos();
 
-        Piece movedPiece = board[startPos].getPiece();
+        if(startPos > 63 || startPos < 0 || targetPos > 63 || targetPos < 0) {
+            return;
+        }
 
+        Piece movedPiece = board[startPos].getPiece();
         board[targetPos] = new ChessPiece(board[startPos].getPiece(), board[startPos].getNumberOfMoves());
         board[startPos] = new ChessPiece(Piece.NO, 0);
 
