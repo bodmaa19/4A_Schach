@@ -77,7 +77,7 @@ public class ChessAi {
         }
         for (Move move : moves) {
             ChessBoard nextMove = new ChessBoard(board);
-            nextMove.makeMove(move, true);
+            nextMove.makeMove(move, false);
             nextMove.changeTurn();
             int cost = -miniMax(new ChessBoard(nextMove), depth - 1, beta * -1, -1 * maxValue);
 
