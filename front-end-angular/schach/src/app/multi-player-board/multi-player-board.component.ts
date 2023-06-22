@@ -40,7 +40,6 @@ export class MultiPlayerBoardComponent implements OnInit {
   isDrag = false;
   dragIndex : any;
   validMoves : any;
-  gameStatus: any;
 
   timeout : any;
   lastStart = -1;
@@ -50,7 +49,6 @@ export class MultiPlayerBoardComponent implements OnInit {
   lastFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
   isSingle = true;
   turn : any;
-
 
   startMulti = () => {
     this.isSingle = false;
@@ -122,31 +120,22 @@ export class MultiPlayerBoardComponent implements OnInit {
         .then(response => {
           return response.json()
         })
-        .then(result => {
-          if(result["status"] != 'StillPlaying') {
-            alert(result["status"]);
-            //ToDo: Change to a Page that displays the status
-          }
-
+        .then(async result => {
           console.log(result)
           this.validMoves = result["moves"];
-          this.gameStatus = result["status"]
           this.multiColor = result["white"];
           this.turn = result["whiteTurn"];
           this.lastStart = result["aiMove"].startPos;
           this.lastTarget = result["aiMove"].targetPos;
-
-          this.setBoard(result["fenString"]);
+          await this.setBoard(result["fenString"]);
           this.stopCountdown();
           this.increaseCountdown();
           this.isPlayer = !this.isPlayer;
-          if (this.isStarted == false)
-          {
+          this.drawDeadPieces();
+          if (this.isStarted == false) {
             this.startCountdown();
             this.isStarted = true;
-          }
-          else
-          {
+          } else {
             this.resumeCountdown();
           }
         })
@@ -475,7 +464,7 @@ export class MultiPlayerBoardComponent implements OnInit {
     let targetPos = (this.isWhite) ? target : 63 - target
 
     if (this.isSingle) {
-      url = 'http://localhost:8080/chess/angular/move/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
+      url = 'http://localhost:8080/chess/move/angular/single?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     } else {
       url = 'http://localhost:8080/chess/angular/move/multi?startPos=' + startPos + '&targetPos=' + targetPos + "&playerId="+this.player["playerId"];
     }
@@ -484,20 +473,16 @@ export class MultiPlayerBoardComponent implements OnInit {
       .then(response => {
         return response.json()
       })
-      .then(json => {
-        if(json["status"] != 'StillPlaying') {
-          alert(json["status"]);
-          //ToDo: Change to a Page that displays the status
-        }
-
+      .then(async json => {
+        console.log(json["fenString"])
         this.validMoves = json["moves"];
         this.lastStart = json["aiMove"].startPos;
         this.lastTarget = json["aiMove"].targetPos;
         this.turn = json["whiteTurn"];
         this.lastFen = json["fenString"];
-        this.gameStatus = json["status"];
-
-        this.setBoard(json["fenString"]);
+        console.log(this.lastFen)
+        await this.setBoard(json["fenString"]);
+        this.drawDeadPieces();
       })
       .catch(error => console.log('error', error));
     this.stopCountdown();
@@ -575,26 +560,37 @@ export class MultiPlayerBoardComponent implements OnInit {
 
   firstNumberOfPieces: number[] = [];
 
-  drawDeadPieces = () => {
-    let fen: string = this.getFenString();
+  drawDeadPieces = async () => {
+    let fen: string = await this.getFenString();
     let numberOfPieces: number[] = [];
     let images: any = document.getElementsByClassName("piece");
     let blackPieces: string = "";
     let whitePieces: string = "";
-
-    console.log(this.firstNumberOfPieces[0])
-
     if (this.firstNumberOfPieces[0] == undefined) {
+      let startPos: string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
       for (let i = 0; i < 12; i++) {
         let id: string = images[i].getAttribute("id");
-        this.firstNumberOfPieces[i] = fen.split(id).length;
+
+        console.log(startPos.split(id))
+        if (id.length == 2) {
+          id = id.charAt(1);
+        }
+
+        this.firstNumberOfPieces[i] = startPos.split(id).length - 1;
       }
     }
+    console.log(this.firstNumberOfPieces)
     for (let i = 0; i < 12; i++) {
-      let id: string = images[i].getAttribute("id");
-      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length; j++) {
+      let idFull: string = images[i].getAttribute("id");
+      let id: string = idFull;
+      if (idFull.length == 2) {
+        id = idFull.charAt(1);
+      }
+      //@ts-ignore
+      console.log(id + ": " + (this.firstNumberOfPieces[i] - fen.split(id).length))
+      for (let j = 0; j < this.firstNumberOfPieces[i] - fen.split(id).length+1; j++) {
         //console.log(images[i])
-        if (id.length == 2) {
+        if (idFull.length == 2) {
           blackPieces += `<img style="height: 80px; width: auto" src="assets/images/${images[i].getAttribute("id").toUpperCase()}.png"></img>`;
         } else {
           whitePieces += `<img style="height: 80px; width: auto" src="assets/images/W${images[i].getAttribute("id")}.png"></img>`;
@@ -604,9 +600,6 @@ export class MultiPlayerBoardComponent implements OnInit {
     /*console.log(blackPieces);
     console.log(whitePieces);
     console.log(document.getElementsByTagName("div"));*/
-
-    console.log(document.getElementsByTagName("div"));
-
     // @ts-ignore
     (document.getElementsByClassName("deadPiecesBlack"))[0].innerHTML = blackPieces;
     // @ts-ignore
